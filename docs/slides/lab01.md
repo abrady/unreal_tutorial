@@ -16,11 +16,23 @@ style: |
 
 # Unreal, the hard way
 
-### A half-day lab for people who already know C++
+### Build a combat gym. In C++. In about five hours.
 
 Aaron Brady · DRE
 
 <span class="small">You do not need a VR headset.</span>
+
+---
+
+## What we're building
+
+A room with a target dummy.
+
+You shoot it. Damage numbers pop off.
+
+Then you attach a component and **it shoots back**.
+
+<span class="small">Five chapters. Nothing you build gets thrown away.</span>
 
 ---
 
@@ -31,12 +43,10 @@ There is no internal Unreal course.
 The Eng Bootcamp Immersive 3D path lists **one** hands-on engine course.
 It's Unity.
 
-This has been proposed **three times** since 2022 — 2022, and twice in 2023,
-once by our own team. None shipped. All three were framed as a *curriculum*.
+Proposed **three times** since 2022 — including once by our own team.
+None shipped. All three were framed as a *curriculum*.
 
 Both Unity attempts shipped. Both were **a single lab**.
-
-<span class="small">So: one lab. Four hours. Complete on its own.</span>
 
 ---
 
@@ -47,13 +57,13 @@ Both Unity attempts shipped. Both were **a single lab**.
 Every chapter ships **failing checks**. You're done when they're green.
 
 ```console
-$ pytest grader/checks/ch04_interaction.py
-FAILED  test_plate_opens_door    - BP_Door yaw was 0.0, expected ~90.0
-FAILED  test_pickup_is_consumed  - Pickup still present after overlap
+$ pytest grader/checks/ch04_damage.py
+FAILED  test_dummy_takes_damage   - Health still 100.0 after 3 hits
+FAILED  test_history_records_hit  - DamageHistory is empty
 ```
 
 The grader doesn't read your source. It boots your project, starts PIE,
-walks the player onto the plate, and asks the **live editor** what happened.
+fires a projectile, and asks the **live editor** what happened.
 
 ---
 
@@ -80,8 +90,7 @@ point at docs, ask you questions.
 **The agent may not** — write your solution, edit `Source/` for the current
 chapter, or peek at `chNN-solution`.
 
-**Once your checks are green** — no restrictions. Diff against the
-reference. Ask it to tear your version apart.
+**Once your checks are green** — no restrictions.
 
 <span class="small">Enforcement is a config file and an honour system. We're
 showing you the study instead of pretending the guardrail is airtight.</span>
@@ -91,12 +100,11 @@ showing you the study instead of pretending the guardrail is airtight.</span>
 ## Your agent is *inside* the editor
 
 Unreal 5.8 ships Epic's `ModelContextProtocol` plugin.
-HTTP + JSON-RPC on `localhost:8000/mcp`.
+HTTP + JSON-RPC on `localhost:8000/mcp`. **255 tools.**
 
-It can start PIE, capture a viewport annotated with every actor's world
-position, and read real compiler errors.
+Start PIE, inspect live actors, read real compiler errors.
 
-**Same interface the grader uses.** So "why is check 3 failing?" is a
+**Same interface the grader uses.** So *"why is check 3 failing?"* is a
 question it can actually go and answer.
 
 ---
@@ -105,20 +113,20 @@ question it can actually go and answer.
 
 ```cpp
 UFUNCTION(meta = (AICallable))
-static float GetDoorAngle(AActor* Door);
+static float GetDummySpinRate(AActor* Dummy);
 ```
 
 Restart your client. That's now a tool the agent can call.
 
 <span class="small">The agent isn't something being done to you.
-It's something you build on. Partners will ask you about this.</span>
+It's something you build on. Partners will ask about this.</span>
 
 ---
 
 <!-- _class: lead -->
 
 # Chapter 1
-## The iteration loop, and your first Actor
+## The iteration loop, and the dummy
 
 ---
 
@@ -130,11 +138,27 @@ before the compiler.
 It emits reflection data: type info, serialization, Blueprint exposure,
 garbage-collection tracking.
 
-That's why `#include "MyActor.generated.h"` must be the **last** include.
-Everything above it gets scanned.
+That's why `#include "TargetDummy.generated.h"` must be the **last**
+include. Everything above it gets scanned.
 
-<span class="small">Get the order wrong and the error message will not tell
-you that's the problem.</span>
+<span class="small">Get the order wrong and the error will not mention
+includes.</span>
+
+---
+
+## Actors are assembled, not inherited
+
+An `AActor` is mostly an empty container. Everything comes from
+**components**.
+
+| Class | Adds |
+|---|---|
+| `UActorComponent` | behaviour, no position |
+| `USceneComponent` | a transform, can be attached |
+| `UPrimitiveComponent` | geometry and collision |
+
+**The root component defines the actor's transform.**
+Attach the head to the body, and the head comes along.
 
 ---
 
@@ -145,20 +169,28 @@ you that's the problem.</span>
 | **Live Coding** | seconds | `.cpp` bodies |
 | **Full rebuild** | minutes | headers, new files, `Build.cs` |
 
-Live Coding patches the running editor. It cannot add a `UPROPERTY`,
-change a class layout, or introduce a new file.
+Live Coding cannot add a `UPROPERTY`, change class layout, or add a file.
 
-<span class="small">When Live Coding "works" but nothing changes, you
-needed a full rebuild.</span>
+<span class="small">When Live Coding "works" but nothing changed, you
+needed a full rebuild. Close the editor first.</span>
 
 ---
 
 <!-- _class: lead -->
 
 # Chapter 2
-## Lifecycle, GC, and the CDO
+## Health, the CDO, and the collector
 
 <span class="small">The chapter that matters.</span>
+
+---
+
+## Where do you set `Health = MaxHealth`?
+
+Put three dummies in the level. Set one to `MaxHealth = 250`.
+
+**In the constructor?** All three start at 100.
+**In `BeginPlay`?** The edited one starts at 250.
 
 ---
 
@@ -167,17 +199,18 @@ needed a full rebuild.</span>
 At editor startup, Unreal instantiates **one** of every UCLASS: the
 **Class Default Object**.
 
-Your constructor runs there, once, long before any level loads.
+Your constructor runs there, once, before any level loads.
+Every instance is then **copied from the CDO**.
 
 ```cpp
-AMyActor::AMyActor()
+ATargetDummy::ATargetDummy()
 {
-    // Runs on the CDO. No world. No level. No other actors.
-    GetWorld()->SpawnActor<AThing>();   // ✗ crash or silent nothing
+    MaxHealth = 100.f;                    // ✓ a default
+    Body = CreateDefaultSubobject<...>(); // ✓ structure
+    Health = MaxHealth;                   // ✗ too early
+    GetWorld()->SpawnActor<AThing>();     // ✗ no world
 }
 ```
-
-Every instance is then **copied from the CDO**.
 
 ---
 
@@ -185,11 +218,11 @@ Every instance is then **copied from the CDO**.
 
 | Hook | When | Use it for |
 |---|---|---|
-| Constructor | CDO creation, editor startup | defaults, creating components |
-| `OnConstruction` | every property edit | editor-time generated content |
-| `PostInitializeComponents` | after components exist | component wiring |
-| `BeginPlay` | gameplay starts | **anything touching the world** |
-| `Tick` | every frame | continuous behavior |
+| Constructor | CDO creation | defaults, components |
+| `OnConstruction` | every property edit | editor-time content |
+| `PostInitializeComponents` | components exist | component wiring |
+| `BeginPlay` | gameplay starts | **anything world-dependent** |
+| `Tick` | every frame | continuous behaviour |
 
 <span class="small">Default answer: `BeginPlay`.</span>
 
@@ -197,13 +230,13 @@ Every instance is then **copied from the CDO**.
 
 ## The GC trap
 
-Unreal has a garbage collector. It only knows about pointers it can see.
+Unreal has a garbage collector. It walks the **reflection graph**.
 
 ```cpp
 UPROPERTY()
-TObjectPtr<UMyThing> Tracked;   // ✓ GC keeps it alive
+TObjectPtr<UDamageHistory> History;   // ✓ GC sees it
 
-UMyThing* Untracked;            // ✗ collected out from under you
+UDamageHistory* History;              // ✗ collected
 ```
 
 No compiler error. No warning. Works fine — until a collection runs,
@@ -216,7 +249,7 @@ and then you're reading freed memory.
 <!-- _class: lead -->
 
 # Chapter 3
-## The gameplay framework
+## You, and you can shoot
 
 ---
 
@@ -225,28 +258,26 @@ and then you're reading freed memory.
 | Class | Lives | Owns |
 |---|---|---|
 | `GameMode` | server only | rules, spawning |
-| `GameState` | replicated to all | shared match state |
+| `GameState` | replicated | shared match state |
 | `PlayerController` | one per player | input, camera, UI |
 | `PlayerState` | replicated | per-player data (score) |
 | `Pawn` / `Character` | in the world | the physical body |
 
 **Possession** is the join: a Controller possesses a Pawn.
 
-<span class="small">Put player data on the Pawn and it dies with the body.</span>
+<span class="small">Score on the Pawn dies with the body. That's what
+PlayerState is for.</span>
 
 ---
 
 ## Enhanced Input
 
-Old way: bind directly to a key.
-New way: three layers.
-
-**Input Action** — *what* (`IA_Jump`), an asset
-**Mapping Context** — *which keys*, pushed/popped at runtime
+**Input Action** — *what* (`IA_Fire`), an asset
+**Mapping Context** — *which keys*, pushed and popped at runtime
 **Binding** — your C++ handler
 
-Costs more setup. Buys remapping, layered contexts (on foot vs. in menu),
-and the same code path for keyboard, gamepad, and VR controllers.
+Costs more setup. Buys remapping, layered contexts, and the same code path
+for mouse, gamepad, and **VR controllers**.
 
 <span class="small">That last one is why we're using it.</span>
 
@@ -255,76 +286,127 @@ and the same code path for keyboard, gamepad, and VR controllers.
 <!-- _class: lead -->
 
 # Chapter 4
-## Collision and interaction
+## Hits, damage, floating numbers
 
 ---
 
 ## Collision is a matrix, not a boolean
 
-Every component has an **object type** and, for each **channel**, a response:
+Every component has an **object type** and, per **channel**, a response:
 
 `Ignore` · `Overlap` · `Block`
 
 Both parties must agree. A blocks B only if **A blocks B *and* B blocks A**.
 
-For overlap events you also need **Generate Overlap Events** on both.
-
-<span class="small">"My trigger doesn't fire" is almost always one half of
-this matrix.</span>
+| | Fires when | Use for |
+|---|---|---|
+| `OnComponentHit` | two **blocking** things collide | projectiles that stop |
+| `OnComponentBeginOverlap` | entering an **overlap** volume | triggers, pickups |
 
 ---
 
-## Interfaces, and the C++/Blueprint boundary
+## Route damage through the pipeline
 
 ```cpp
-UINTERFACE(MinimalAPI, Blueprintable)
-class UInteractable : public UInterface { GENERATED_BODY() };
-
-class IInteractable
-{
-    GENERATED_BODY()
-public:
-    UFUNCTION(BlueprintNativeEvent)
-    void Interact(AActor* Instigator);
-};
+UGameplayStatics::ApplyDamage(HitActor, 25.f,
+    InstigatorController, this, UDamageType::StaticClass());
 ```
 
-`BlueprintNativeEvent` = C++ default, overridable in Blueprint.
+Then override `AActor::TakeDamage`. **Call `Super`.**
 
-The pawn talks to `IInteractable`. It never knows about doors or pickups.
-
----
-
-## Why that interface is the point
-
-The pawn doesn't implement interaction. It **asks** for it.
-
-Swap the desktop pawn for a VR pawn and every door, plate, and pickup
-keeps working, untouched.
-
-<span class="big">That's the VR lesson.</span>
-
-<span class="small">And you just learned it without a headset.</span>
+Looks like ceremony at this scale. Stops looking like ceremony the first
+time someone asks for a shield that halves incoming damage.
 
 ---
 
-## Where to go next
+<!-- _class: lead -->
 
-Take-home, self-serve, optional:
+# Chapter 5
+## Ability components
 
-- Delegates and game state
-- UMG HUD from C++
-- **AI patrol** — NavMesh, Behavior Trees, Blackboards
-  <span class="small">(best showcase of live MCP inspection)</span>
-- Audio
-- Packaging a standalone build
-- **The VR pawn swap** — headset required
+<span class="small">The most important architectural chapter.</span>
+
+---
+
+## The design question
+
+You want a dummy that shoots. The obvious move:
+
+```
+ATargetDummy
+ └── AShootingDummy
+      └── AHomingShootingDummy
+           └── AHomingExplodingShootingDummy   ← hell
+```
+
+Every combination needs a class.
+
+---
+
+## Composition instead
+
+```
+ATargetDummy
+ ├── Body (StaticMesh)
+ ├── Head (StaticMesh)
+ └── CannonAbility (UAbilityComponent)   ← dummy knows nothing
+```
+
+Exploding homing dummy? **Attach two components.**
+
+No new class. No inheritance diamond. And a designer can do it in the
+editor without touching code.
+
+<span class="small">This is why `AActor` is nearly empty.</span>
+
+---
+
+## Keep the component ignorant
+
+```cpp
+AActor* Owner = GetOwner();
+```
+
+That's the component's whole view of the world.
+
+A component that casts its owner to `ATargetDummy` has thrown away its
+reusability.
+
+<span class="big">Keep it working against `AActor`.</span>
+
+<span class="small">Then it drops onto the player, a turret, or a barrel
+unchanged.</span>
+
+---
+
+## Where the VR lesson lands
+
+Your ability doesn't know what triggered it.
+Your damage pipeline doesn't know what dealt it.
+Your firing code doesn't know what device sent `IA_Fire`.
+
+**Swap the pawn for VR hands. The combat layer is untouched.**
+
+<span class="small">You just learned it without a headset.</span>
+
+---
+
+## Take-home
+
+**Ch 6** — three dummies, three powers: AOE, homing, spread.
+Where composition starts paying real dividends.
+
+**Ch 7** — attacks driven by animation timing, via montage notifies.
+How real combat games actually do it.
+
+<span class="small">Also: UMG health bars · Behavior Trees (best MCP
+inspection showcase) · audio · packaging · the VR pawn swap.</span>
 
 ---
 
 <!-- _class: lead -->
 <!-- _paginate: false -->
 
-# Go build a room
+# Go build a gym
 
-<span class="small">`pytest grader/checks/ch01_actor.py`</span>
+<span class="small">`pytest grader/checks/ch01_dummy.py`</span>
