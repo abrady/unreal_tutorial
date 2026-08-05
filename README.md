@@ -6,9 +6,10 @@ then attach a component and watch the dummy shoot back.
 In C++, from an empty project, verified by an automated grader, debugged with
 an AI agent wired directly into the running editor.
 
-> **Status: in development.** The design is settled
-> ([docs/plans](docs/plans/2026-08-04-unreal-mcp-tutorial-design.md)); the lab
-> itself is being built. Chapter 0 is the first thing that will work.
+> **Status: chapters 1–5 are playable.** All seven chapters are written, the
+> grader runs green against a live 5.8.1 editor, and reference solutions exist
+> for 1–5. Design rationale lives in
+> [docs/plans](docs/plans/2026-08-04-unreal-mcp-tutorial-design.md).
 
 **You do not need a VR headset.** You need a PC or Mac that can run Unreal.
 
@@ -30,9 +31,16 @@ its own. Extra chapters are take-home and optional.
 when they're green.
 
 ```console
-$ pytest grader/checks/ch04_damage.py
-FAILED  test_dummy_takes_damage    - Health still 100.0 after 3 hits
-FAILED  test_history_records_hit   - DamageHistory is empty
+$ python3 check.py ch04
+
+ch04_damage Hits, damage, and floating numbers.
+  ✗ dummy lost health
+      The dummy is still at full health (100/100).
+      Work the collision matrix from both ends — the projectile and the
+      dummy each need a response that produces an event.
+  ✗ hit was recorded
+      Health changed but HitCount is 0, so TakeDamage isn't recording
+      into the damage history.
 ```
 
 The grader isn't reading your source. It boots your project, starts PIE, fires
@@ -141,9 +149,10 @@ swap if you have one.
    unable to participate.
 2. Confirm you're ready:
    ```console
-   $ pytest grader/checks/ch00_setup.py
+   $ cd grader && python3 check.py ch00
    ```
-   Green is your ticket in.
+   Green is your ticket in. No pip install — the grader is standard library
+   only, and runs on whatever `python3` you already have.
 3. Start at [`chapters/01-iteration-loop`](chapters/01-iteration-loop/).
 
 ## Repo map
@@ -154,7 +163,7 @@ swap if you have one.
 | `chapters/` | One README per chapter. **Steps.** |
 | `docs/slides/` | The deck. **Concepts.** |
 | `Lab01_FirstRoom/` | The Unreal project |
-| `grader/` | MCP client and check suites |
+| `grader/` | MCP client and check suites. `python3 check.py` |
 | `AGENTS.md` | Tutor-mode rules for your AI client |
 | `docs/plans/` | Why the lab is shaped like this |
 

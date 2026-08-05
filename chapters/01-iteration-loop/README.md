@@ -13,7 +13,7 @@ the **component model**, which is how every Unreal actor is assembled.
 ## What green looks like
 
 ```console
-$ cd grader && .venv/bin/python -m pytest checks/ch01_dummy.py
+$ cd grader && python3 check.py ch01
 ```
 
 The checks spawn your dummy into a running PIE session, verify it has a
@@ -166,7 +166,7 @@ arriving early.
 ## Run the checks
 
 ```bash
-cd grader && .venv/bin/python -m pytest checks/ch01_dummy.py -v
+cd grader && python3 check.py ch01
 ```
 
 Green means you're done.

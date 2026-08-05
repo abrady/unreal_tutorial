@@ -13,7 +13,7 @@ behaviours cost three components and nothing else changes.
 ## What green looks like
 
 ```console
-$ cd grader && .venv/bin/python -m pytest checks/ch06_powers.py
+$ cd grader && python3 check.py ch06
 ```
 
 ---

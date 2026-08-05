@@ -1,64 +1,64 @@
-"""Chapter 0 — your environment is ready.
+"""Your environment is ready.
 
 Green here is your ticket into the session. Everything these checks cover is
-something that, left broken, will silently waste your morning.
+something that, left broken, will quietly waste your morning.
 """
 
 from __future__ import annotations
 
-import pytest
-
+import lab
+from mcp_client import CheckFailed
 from mcp_client import UnrealMcp
 
-# Tools the lab actually leans on. The engine registers these fully qualified
-# as <Plugin>.<Toolset>.<Tool>; the client resolves short names for us.
 REQUIRED_TOOLS = ("StartPIE", "StopPIE", "IsPIERunning", "GetVisibleActors")
 
 
-def test_editor_is_reachable(unreal: UnrealMcp) -> None:
-    """The MCP server is up and completed a handshake."""
-    assert unreal.session_id, "handshake produced no Mcp-Session-Id"
+def check_editor_is_reachable(unreal: UnrealMcp) -> None:
+    if not unreal.session_id:
+        raise CheckFailed("The handshake produced no session id.")
 
 
-def test_tools_are_available(unreal: UnrealMcp) -> None:
-    """tools/list returns something we can work with."""
-    names = {tool["name"] for tool in unreal.list_tools()}
-    assert names, "the server exposed no tools at all"
+def check_tools_are_available(unreal: UnrealMcp) -> None:
+    if not unreal.tools():
+        raise CheckFailed(
+            "The server exposed no tools at all. Check that the "
+            "EditorToolset plugin is enabled, then restart the editor."
+        )
 
 
-def test_required_tools_are_registered(unreal: UnrealMcp) -> None:
-    """The tools the lab depends on are reachable."""
+def check_required_tools_are_registered(unreal: UnrealMcp) -> None:
     missing = [name for name in REQUIRED_TOOLS if not unreal.has_tool(name)]
-    assert not missing, (
-        f"missing tool(s): {missing}. Enable the EditorToolset plugin in "
-        f"Edit > Plugins and restart the editor. See SETUP.md. "
-        f"({len(unreal.tools())} tools currently registered.)"
-    )
+    if missing:
+        raise CheckFailed(
+            f"Missing tools: {missing}\n"
+            "Enable the EditorToolset plugin in Edit > Plugins and restart.\n"
+            f"({len(unreal.tools())} tools are currently registered.)"
+        )
 
 
-def test_pie_can_start_and_stop(unreal: UnrealMcp) -> None:
-    """PIE is drivable over MCP — every later chapter depends on this."""
+def check_pie_can_start_and_stop(unreal: UnrealMcp) -> None:
     if unreal.is_pie_running():
         unreal.stop_pie()
 
     unreal.start_pie(warmup_seconds=1.0)
     try:
-        assert unreal.is_pie_running(), "StartPIE returned but IsPIERunning is false"
+        if not unreal.is_pie_running():
+            raise CheckFailed("StartPIE returned, but IsPIERunning says otherwise.")
     finally:
         unreal.stop_pie()
 
-    assert not unreal.is_pie_running(), "PIE did not shut down cleanly"
+    if unreal.is_pie_running():
+        raise CheckFailed("PIE didn't shut down cleanly.")
 
 
-def test_live_inspection_reports_actors(pie: UnrealMcp) -> None:
-    """Live inspection works: we can see what's actually in the running world.
-
-    This is the capability the whole grader rests on. If this passes, the
-    lab can ask the editor what actually happened rather than trusting you.
-    """
-    actors = pie.call("GetVisibleActors")
-    assert isinstance(actors, list), f"expected a list of actors, got {type(actors)}"
-    assert actors, "PIE is running but no actors are visible"
-    assert any("refPath" in actor for actor in actors), (
-        f"actor entries have no refPath; first entry was {actors[0]!r}"
-    )
+def check_live_inspection_works(unreal: UnrealMcp) -> None:
+    """The capability the whole grader rests on."""
+    with lab.pie_session(unreal, warmup_seconds=1.0):
+        actors = unreal.call("GetVisibleActors")
+        if not isinstance(actors, list) or not actors:
+            raise CheckFailed(
+                "PIE is running but no actors are visible, so the grader "
+                "can't see what your code does."
+            )
+        if not any("refPath" in a for a in actors):
+            raise CheckFailed(f"Actor entries look wrong: {actors[0]!r}")

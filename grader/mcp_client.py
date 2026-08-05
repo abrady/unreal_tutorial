@@ -35,6 +35,15 @@ class McpError(RuntimeError):
     """A JSON-RPC error, a tool-reported failure, or an unreachable editor."""
 
 
+class CheckFailed(Exception):
+    """A check didn't pass.
+
+    Lives here rather than in the runner so that `from check import
+    CheckFailed` can't resolve to a second copy of the class when check.py is
+    executed as __main__ - which silently breaks every except clause.
+    """
+
+
 class EditorNotRunning(McpError):
     """Nothing is listening on the MCP endpoint."""
 

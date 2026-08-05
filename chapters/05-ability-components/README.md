@@ -15,7 +15,7 @@ partner project you open.
 ## What green looks like
 
 ```console
-$ cd grader && .venv/bin/python -m pytest checks/ch05_abilities.py
+$ cd grader && python3 check.py ch05
 ```
 
 The checks start PIE, wait past the cooldown, and assert a dummy-spawned
@@ -177,7 +177,7 @@ avoiding.
 ## Run the checks
 
 ```bash
-cd grader && .venv/bin/python -m pytest checks/ch05_abilities.py -v
+cd grader && python3 check.py ch05
 ```
 
 ---

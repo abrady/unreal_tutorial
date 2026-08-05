@@ -12,7 +12,7 @@ demo and starts being a game.
 ## What green looks like
 
 ```console
-$ cd grader && .venv/bin/python -m pytest checks/ch04_damage.py
+$ cd grader && python3 check.py ch04
 ```
 
 The checks fire a projectile at a dummy and assert its health dropped and the
@@ -163,7 +163,7 @@ in whatever reads `Health`? There's a real design argument either way.
 ## Run the checks
 
 ```bash
-cd grader && .venv/bin/python -m pytest checks/ch04_damage.py -v
+cd grader && python3 check.py ch04
 ```
 
 Then [Chapter 5](../05-ability-components/), where the dummy shoots back.

@@ -90,13 +90,10 @@ Restart the client after the editor is running so it picks up the tool list.
 > Tools only exist while the editor is open. If your agent says it has no
 > Unreal tools, the editor is closed or the server didn't start.
 
-## 6. Set up the grader
+## 6. The grader needs nothing
 
-```bash
-cd grader
-python3 -m venv .venv
-.venv/bin/pip install pytest
-```
+Standard library only. No venv, no `pip install`, no pytest — whatever
+`python3` you already have will run it.
 
 ## 7. Confirm you're ready
 
@@ -104,15 +101,18 @@ With the editor open:
 
 ```bash
 cd grader
-.venv/bin/python -m pytest checks/ch00_setup.py
+python3 check.py ch00
 ```
 
 Five passing checks is your ticket in. They verify the handshake, the tool
 list, the toolsets the lab needs, that PIE starts and stops on command, and
 that live viewport inspection reports actors.
 
-If they **skip** rather than fail, the grader couldn't reach the editor — go
-back to step 4.
+If the run stops with **"Can't reach Unreal"**, the grader couldn't find the
+editor — go back to step 4.
+
+Run `python3 check.py` with no arguments for every chapter, or
+`python3 check.py ch01 ch02` for a subset.
 
 ---
 
@@ -125,7 +125,7 @@ Edit → Project Settings → Model Context Protocol.
 **Port 8000 already in use**
 Change `ServerPortNumber`, then point the grader at it:
 ```bash
-UNREAL_MCP_URL=http://localhost:8123/mcp .venv/bin/python -m pytest
+UNREAL_MCP_URL=http://localhost:8123/mcp python3 check.py ch00
 ```
 
 **`Tool 'X' is not registered and tool-search is off`**

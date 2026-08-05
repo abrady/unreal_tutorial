@@ -47,7 +47,7 @@ Both Unity attempts shipped. Both were **a single lab**.
 Every chapter ships **failing checks**. You're done when they're green.
 
 ```console
-$ pytest grader/checks/ch04_interaction.py
+$ python3 grader/check.py ch04
 FAILED  test_plate_opens_door    - BP_Door yaw was 0.0, expected ~90.0
 FAILED  test_pickup_is_consumed  - Pickup still present after overlap
 ```
@@ -353,4 +353,4 @@ Take-home, self-serve, optional:
 
 # Go build a room
 
-<span class="small">`pytest grader/checks/ch01_actor.py`</span>
+<span class="small">`python3 grader/check.py ch01`</span>

@@ -18,7 +18,7 @@ actually fixed it.
 ## What green looks like
 
 ```console
-$ cd grader && .venv/bin/python -m pytest checks/ch02_health.py
+$ cd grader && python3 check.py ch02
 ```
 
 Four checks. Two about *when* your code runs, two about *whether your objects
@@ -226,7 +226,7 @@ fires when a collection finishes. Remember to unbind it in `EndPlay`.
 ## Run the checks
 
 ```bash
-cd grader && .venv/bin/python -m pytest checks/ch02_health.py -v
+cd grader && python3 check.py ch02
 ```
 
 Then [Chapter 3](../03-shooting/), where you get to shoot at it.

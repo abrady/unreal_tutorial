@@ -224,10 +224,19 @@ go green.
 
 The grader is a plain HTTP client speaking MCP JSON-RPC to
 `localhost:8000/mcp` — the same protocol the AI client uses, with no AI in the
-loop. Written as pytest tests, because this audience already speaks that.
+loop. **Standard library only**, so Chapter 0 has no install step: `check.py`
+plus a socket client is the whole thing.
 
-```
-pytest grader/checks/ch01_actor.py
+It deliberately does *not* use pytest. The failure messages are the teaching,
+and they read better as tutor output than as assertion tracebacks:
+
+```console
+$ python3 grader/check.py ch01
+  ✗ it rotates
+      The dummy isn't turning — yaw was 0.0 and is still 0.0 after 1s.
+      Two usual causes:
+        • PrimaryActorTick.bCanEverTick wasn't set in the constructor
+        • Tick never applies a rotation
 ```
 
 A check looks like:
@@ -254,6 +263,21 @@ Why this works:
 It is also, incidentally, a harness that drives a real UE editor through
 scripted scenarios and asserts on live state — i.e. a partner-repro tool
 wearing a tutorial costume. That reusability is part of the pitch.
+
+### Why the agent can't be the grader
+
+A reasonable question: the checks call the same MCP tools the agent has, so
+why not just ask the agent whether the chapter is done?
+
+Because the checkpoint's whole job is to be **unassisted and objective**, and
+an agent-judged checkpoint is neither. It's definitionally the −17% condition
+from Bastani; LLMs are agreeable and will find a way to say yes; and "close
+enough?" works on a model in a way it doesn't on `assert health == 250`.
+
+In-engine automation tests were the other candidate and don't work either:
+they compile as part of the learner's module, so a test asserting "does
+`ATargetDummy` exist" can't compile when the answer is no. The grader has to
+sit outside the thing it grades.
 
 ---
 
@@ -287,7 +311,7 @@ which makes the claim more honest than it was under the previous design.
 **This must be done before the session starts or the attendee is dead.**
 
 Unreal install is enormous and the first compile is long. Setup gets its own
-verification script; a green `pytest grader/checks/ch00_setup.py` is the
+verification script; a green `python3 grader/check.py ch00` is the
 ticket to the session.
 
 Covers: engine acquisition, repo clone, first full build, enabling the

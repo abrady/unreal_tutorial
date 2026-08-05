@@ -13,7 +13,7 @@ boilerplate teaches almost nothing and eats the clock.
 ## What green looks like
 
 ```console
-$ cd grader && .venv/bin/python -m pytest checks/ch03_shooting.py
+$ cd grader && python3 check.py ch03
 ```
 
 The checks start PIE, confirm a pawn got possessed, inject a fire input, and
@@ -201,7 +201,7 @@ go, not at the end.
 ## Run the checks
 
 ```bash
-cd grader && .venv/bin/python -m pytest checks/ch03_shooting.py -v
+cd grader && python3 check.py ch03
 ```
 
 Then [Chapter 4](../04-damage/), where the dummy starts to notice.

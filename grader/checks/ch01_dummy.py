@@ -1,113 +1,92 @@
-"""Chapter 1 — the iteration loop, and the dummy.
+"""The iteration loop, and the dummy.
 
-Green means: ATargetDummy exists, spawns, has a two-part component tree with
+Green means ATargetDummy exists, spawns, has a two-part component tree with
 the head attached to the body, and turns while the game is running.
-
-The rotation check samples the live actor twice during PIE, so it passes only
-if Tick is actually firing — not if the code merely compiles.
 """
 
 from __future__ import annotations
 
 import time
 
-import pytest
-
 import lab
+from mcp_client import CheckFailed
 from mcp_client import UnrealMcp
 
 ACTOR_CLASS = "ATargetDummy"
 
-# Long enough that a slow spin still shows a measurable delta, short enough
-# that the suite stays quick.
 SAMPLE_INTERVAL_SECONDS = 1.0
 MIN_EXPECTED_DEGREES = 5.0
 
+_MISSING = (
+    f"The engine can't resolve {lab.class_path(ACTOR_CLASS)}.\n\n"
+    "Either the class doesn't exist yet, or the module wasn't rebuilt.\n"
+    "Adding a new UCLASS needs a full rebuild with the editor closed —\n"
+    "Live Coding can't do it."
+)
 
-@pytest.fixture
-def dummy(unreal: UnrealMcp):
-    """A dummy in a running PIE session.
 
-    Spawns into the editor world first, then starts PIE — the engine won't
-    create actors while PIE is active, since the editor world is the
-    template PIE duplicates from.
+def _dummy_in_pie(unreal: UnrealMcp):
+    """Spawn into the editor world, start PIE, hand back the live copy.
+
+    Order matters: the engine refuses to create actors while PIE is running,
+    because the editor world is the template PIE duplicates from.
     """
     if not lab.class_exists(unreal, ACTOR_CLASS):
-        pytest.fail(
-            f"{ACTOR_CLASS} doesn't exist yet. Create it in "
-            "Lab01_FirstRoom/Source/Lab01/ and do a full rebuild with the "
-            "editor closed. See chapters/01-iteration-loop/README.md."
-        )
+        raise CheckFailed(_MISSING)
 
     lab.ensure_in_level(unreal, ACTOR_CLASS)
+    return lab.pie_session(unreal)
 
-    with lab.pie_session(unreal):
-        actor = lab.first_actor(unreal, ACTOR_CLASS)
-        if not actor:
-            pytest.fail(
-                f"{ACTOR_CLASS} exists as a class but no instance reached the "
-                "running level."
+
+def check_class_exists(unreal: UnrealMcp) -> None:
+    if not lab.class_exists(unreal, ACTOR_CLASS):
+        raise CheckFailed(_MISSING)
+
+
+def check_has_body_and_head(unreal: UnrealMcp) -> None:
+    with _dummy_in_pie(unreal):
+        dummy = lab.first_actor(unreal, ACTOR_CLASS)
+        meshes = lab.components_of_type(unreal, dummy, "MeshComponent")
+        if len(meshes) < 2:
+            raise CheckFailed(
+                f"{ACTOR_CLASS} has {len(meshes)} mesh component(s), "
+                "expected 2 — a body and a head.\n\n"
+                "Create both in the constructor with CreateDefaultSubobject.\n"
+                "Components can't be created in BeginPlay."
             )
-        yield unreal, actor
 
 
-def test_class_exists(unreal: UnrealMcp) -> None:
-    """The class is compiled into the game module and the engine can see it."""
-    assert lab.class_exists(unreal, ACTOR_CLASS), (
-        f"The engine can't resolve {lab.class_path(ACTOR_CLASS)}.\n"
-        "Either the class doesn't exist yet, or the module wasn't rebuilt. "
-        "Adding a new UCLASS needs a full rebuild with the editor closed — "
-        "Live Coding can't do it."
-    )
+def check_head_is_attached_to_body(unreal: UnrealMcp) -> None:
+    """The component tree is a hierarchy, not a pile of siblings."""
+    with _dummy_in_pie(unreal):
+        dummy = lab.first_actor(unreal, ACTOR_CLASS)
+        parented = [c for c in lab.components_of(unreal, dummy) if lab.parent_of(unreal, c)]
+        if not parented:
+            raise CheckFailed(
+                "Nothing on the dummy has a parent — the components are all "
+                "sitting at the root.\n\n"
+                "Attach the head to the body in the constructor:\n"
+                "    Head->SetupAttachment(Body);\n\n"
+                "Without it, moving the dummy leaves the head behind."
+            )
 
 
-def test_has_body_and_head(dummy) -> None:
-    """Two mesh components, so there's a dummy to look at."""
-    unreal, actor = dummy
-    meshes = lab.components_of_type(unreal, actor, "MeshComponent")
-    assert len(meshes) >= 2, (
-        f"{ACTOR_CLASS} has {len(meshes)} mesh component(s), expected at least 2 "
-        "(a body and a head).\n"
-        "Create both in the constructor with CreateDefaultSubobject. "
-        "Components can't be created in BeginPlay."
-    )
+def check_it_rotates(unreal: UnrealMcp) -> None:
+    """Distinguishes 'compiles' from 'works'."""
+    with _dummy_in_pie(unreal):
+        dummy = lab.first_actor(unreal, ACTOR_CLASS)
+        before = lab.yaw_of(unreal, dummy)
+        time.sleep(SAMPLE_INTERVAL_SECONDS)
+        after = lab.yaw_of(unreal, dummy)
 
-
-def test_head_is_attached_to_body(dummy) -> None:
-    """The head is parented to the body, not floating free at the origin.
-
-    This is the component-tree lesson: an actor is a hierarchy, and a child's
-    transform is relative to its parent.
-    """
-    unreal, actor = dummy
-    components = lab.components_of(unreal, actor)
-    parented = [c for c in components if lab.parent_of(unreal, c)]
-    assert parented, (
-        f"No component on {ACTOR_CLASS} has a parent — they're all siblings at "
-        "the root.\n"
-        "Attach the head to the body in the constructor with "
-        "Head->SetupAttachment(Body). Without that, moving the dummy leaves "
-        "the head behind."
-    )
-
-
-def test_it_rotates(dummy) -> None:
-    """It actually turns while the game runs.
-
-    This is the check that distinguishes 'compiles' from 'works'. The usual
-    reason it fails is that ticking was never enabled.
-    """
-    unreal, actor = dummy
-
-    before = lab.yaw_of(unreal, actor)
-    time.sleep(SAMPLE_INTERVAL_SECONDS)
-    after = lab.yaw_of(unreal, actor)
-
-    delta = abs(after - before) % 360.0
-    assert delta >= MIN_EXPECTED_DEGREES, (
-        f"{ACTOR_CLASS} isn't turning — yaw was {before:.1f} and is still "
-        f"{after:.1f} after {SAMPLE_INTERVAL_SECONDS:.0f}s.\n"
-        "Two usual causes: PrimaryActorTick.bCanEverTick wasn't set to true "
-        "in the constructor, or Tick never applies a rotation. Note that "
-        "rotating the mesh component spins the mesh, not the actor."
-    )
+        moved = abs(after - before) % 360.0
+        if moved < MIN_EXPECTED_DEGREES:
+            raise CheckFailed(
+                f"The dummy isn't turning — yaw was {before:.1f} and is still "
+                f"{after:.1f} after {SAMPLE_INTERVAL_SECONDS:.0f}s.\n\n"
+                "Two usual causes:\n"
+                "  • PrimaryActorTick.bCanEverTick wasn't set in the constructor\n"
+                "  • Tick never applies a rotation\n\n"
+                "Note that rotating the mesh component spins the mesh, not the "
+                "actor."
+            )
