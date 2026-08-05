@@ -182,6 +182,22 @@ cd grader && .venv/bin/python -m pytest checks/ch05_abilities.py -v
 
 ---
 
+## Then delegate the rest
+
+One armed dummy proves the pattern. A gym wants several.
+
+**Ask your agent to attach cannon abilities to the other dummies**, with
+different cooldowns so the fire isn't synchronised. Attaching a component and
+setting a property is editor work, not thinking work — you've already shown
+you understand it.
+
+While it's in there, ask it to inspect the result: which dummies have ability
+components, and what cooldown each one got? That's a live-state question, and
+verifying an agent's work through the same interface it used is a genuinely
+useful habit.
+
+---
+
 ## You built a combat gym
 
 You walk in, you shoot a dummy, numbers pop off it, and it shoots back. In

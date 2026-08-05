@@ -97,6 +97,20 @@ showing you the study instead of pretending the guardrail is airtight.</span>
 
 ---
 
+## But delegate the repetition
+
+<span class="big">Do it once by hand. Then hand off the grind.</span>
+
+You wire `IA_Fire`. The agent adds `IA_Reload` and `IA_Dash`.
+You place one dummy. The agent places four more.
+
+Doing it a second time isn't learning — it's typing.
+
+<span class="small">And when it *can't* do something, note that. The 255 tools
+have edges, and partners will ask you where they are.</span>
+
+---
+
 ## Your agent is *inside* the editor
 
 Unreal 5.8 ships Epic's `ModelContextProtocol` plugin.

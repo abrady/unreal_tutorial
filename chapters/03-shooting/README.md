@@ -124,6 +124,36 @@ Chapter 4.
 
 ---
 
+## Then delegate the rest
+
+You've now made one input action by hand. You know what an InputAction asset
+is, what a mapping context does, and where the binding goes.
+
+**Doing it a second time teaches you nothing.** So don't.
+
+Ask your agent to add `IA_Reload` and `IA_Dash` — assets, mappings, and
+bindings — the same way you did `IA_Fire`. They don't need to do anything
+useful yet; the point is the delegation, not the feature.
+
+This is the pattern to take away from the whole lab: **do it once to
+understand it, then hand off the repetition.** It's how you'll actually work,
+and it's the opposite of letting the agent do the part you haven't learned.
+
+### Note what happens
+
+The agent may create the assets cleanly. It may create them and get the
+modifiers wrong. It may not be able to author an InputAction asset at all and
+tell you so.
+
+**All three outcomes are useful, and worth writing down.** You will be asked
+*"can the MCP do X?"* by a partner, and a first-hand answer beats a guess.
+The 255 registered tools have edges, and finding them is part of the job.
+
+If it can't, ask it *why* — `describe_toolset` will show what the input
+toolset actually exposes.
+
+---
+
 ## Stuck?
 
 <details>

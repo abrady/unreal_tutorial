@@ -73,6 +73,27 @@ gloves come off.
 Enforcement is a config file and an honour system. We're telling you the study
 result instead of pretending the guardrail is airtight.
 
+## But you *should* delegate the repetition
+
+The rule above isn't "don't use the agent." It's "don't let it do the part
+you haven't learned yet."
+
+Once you've done something **once, by hand**, doing it four more times isn't
+learning — it's typing. Hand that over:
+
+> You wire `IA_Fire` yourself. Then you ask the agent to add `IA_Reload` and
+> `IA_Dash` the same way.
+>
+> You place one target dummy. Then you ask it to place four more in a firing
+> line.
+
+Every chapter ends with something to delegate. That's the working pattern the
+lab is actually teaching: **understand it once, then hand off the grind.**
+
+And when the agent *can't* do it — that's worth knowing too. The 255 tools
+have edges. Finding them is part of why you're here, because a partner is
+going to ask you where they are.
+
 ## What you'll build
 
 | Ch | Build | The thing that actually bites |

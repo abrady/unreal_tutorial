@@ -204,6 +204,16 @@ Supporting literature, all pointing the same way:
 2. **Guardrail the agent during chapters, unleash it after.** This is the
    GPT-Tutor arm, implemented as a repo-level agent instruction file.
 3. **Every chapter ends in an unassisted, objectively-graded checkpoint.**
+4. **Delegate the repetition, not the learning.** Once a learner has done
+   something once by hand, doing it four more times teaches nothing — that's
+   the agent's job, and every chapter ends with something to hand off.
+   This resolves the tension between the guardrail and the project's actual
+   goal (*"most importantly I want people to use the MCP to learn"*): the
+   effortful first pass is preserved, and the agent becomes the thing you
+   graduate to rather than something withheld.
+   It also surfaces the MCP's limits, which is first-hand knowledge DREs will
+   be asked for. "Can it author an InputAction asset?" is better answered by
+   someone who tried.
 
 ---
 

@@ -169,7 +169,25 @@ arriving early.
 cd grader && .venv/bin/python -m pytest checks/ch01_dummy.py -v
 ```
 
-Green means you're done. On to [Chapter 2](../02-health-and-gc/).
+Green means you're done.
+
+---
+
+## Then delegate the rest
+
+One dummy is a test case. A gym needs several.
+
+You've built one by hand, so you know what it's made of. **Ask your agent to
+place four more** in a firing line, spaced a few metres apart.
+
+That's a level-editing operation, not a code one — exactly the kind of thing
+the MCP should be good at and you shouldn't be doing by hand. Note whether it
+works, and how it goes wrong if it doesn't.
+
+This is the pattern for the whole lab: **do it once to understand it, then
+hand off the repetition.**
+
+On to [Chapter 2](../02-health-and-gc/).
 
 ---
 
