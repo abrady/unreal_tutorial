@@ -2,3 +2,9 @@ grader/.venv/
 grader/.pytest_cache/
 __pycache__/
 *.pyc
+
+# Unreal
+Lab01_FirstRoom/Binaries/
+Lab01_FirstRoom/Intermediate/
+Lab01_FirstRoom/Saved/
+Lab01_FirstRoom/DerivedDataCache/
