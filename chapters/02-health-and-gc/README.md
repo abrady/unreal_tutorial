@@ -51,23 +51,48 @@ Write down what you expect before each run.
 
 ### What you'll find
 
-Set in the **constructor**, `Health` is baked into the *Class Default Object*
-and every dummy shares it. Your 250-health dummy still starts at 100, because
-the constructor ran once, at editor startup, before your per-instance edit
-existed.
+Set in the **constructor**, `Health` is 100 on every dummy — including the
+one you set to 250.
 
-Set in **`BeginPlay`**, each dummy reads its own `MaxHealth` and the edited
-one starts at 250.
+Set in **`BeginPlay`**, the edited dummy starts at 250.
 
 ### Why
 
 At editor startup Unreal instantiates exactly one of every `UCLASS` — the
-**Class Default Object**. Your constructor runs *there*, once, long before any
-level loads. Every instance you spawn is then **copied from the CDO** and
-patched with whatever the level or Blueprint overrode.
+**Class Default Object**. Your constructor runs there first, before any level
+loads.
 
-So the constructor is for **defaults and structure**, never for anything that
-depends on the world or on this particular instance:
+The constructor then runs again for each instance. But here's the part that
+bites: **per-instance overrides are applied *after* the constructor finishes.**
+The order is:
+
+```
+1. construct from the CDO template     <- MaxHealth is still 100 here
+2. apply per-instance overrides        <- MaxHealth becomes 250 now
+3. PostInitializeComponents
+4. BeginPlay                           <- first point you can trust it
+```
+
+So a constructor that reads `MaxHealth` reads the *default*, never the value
+someone set in the level. Your 250-health dummy gets 100 health, and nothing
+warns you.
+
+### A warning about `GetWorld()`
+
+You'll see advice that the constructor has no world. That's true **for the
+CDO** — and misleading for instances, where `GetWorld()` often does return
+something.
+
+So the rule isn't "there's never a world." It's **"you can't rely on it."**
+The same code path runs in both cases, and only one of them has a world.
+Code that works when you spawn an actor at runtime can be null-dereferencing
+at editor startup.
+
+Try it if you like: record `GetWorld() != nullptr` in the constructor and see
+what a spawned dummy reports. It may surprise you, and it's a good reminder
+that "I tested it and it worked" is weaker evidence than it feels.
+
+### What the constructor is for
 
 ```cpp
 ATargetDummy::ATargetDummy()
@@ -76,17 +101,13 @@ ATargetDummy::ATargetDummy()
     Body = CreateDefaultSubobject<UStaticMeshComponent>(...);  // ✓ structure
     MaxHealth = 100.f;                                         // ✓ a default
 
-    Health = MaxHealth;                                        // ✗ too early
-    GetWorld()->SpawnActor<AThing>();                          // ✗ no world
+    Health = MaxHealth;                                        // ✗ reads the default
+    GetWorld()->SpawnActor<AThing>();                          // ✗ may be null
 }
 ```
 
-That last one won't reliably crash. It'll return null, do nothing, or corrupt
-the CDO so every instance inherits the damage. Silent wrongness, which is
-worse.
-
 **This is also why `CreateDefaultSubobject` only works in the constructor.**
-It builds the CDO's component template, which instances get copied from.
+It builds the CDO's component template, which instances are copied from.
 
 ### Where code goes
 
@@ -100,8 +121,8 @@ It builds the CDO's component template, which instances get copied from.
 
 Default answer: `BeginPlay`.
 
-To prove it to yourself and the grader, record two flags —
-`bHadWorldInConstructor` and `bHadWorldInBeginPlay`.
+To prove it to yourself and the grader, have the dummy record what `MaxHealth`
+looked like at construction time versus at `BeginPlay`.
 
 ---
 
@@ -166,12 +187,13 @@ Part A's whole point — `BeginPlay`.
 </details>
 
 <details>
-<summary>bHadWorldInConstructor comes back true</summary>
+<summary>Both my constructor and BeginPlay values look the same</summary>
 
-You're probably reading `GetWorld()` somewhere other than the constructor
-body. Also note the CDO is built once per editor session — if you changed the
-constructor and hot-patched with Live Coding, the existing CDO is stale.
-Restart the editor.
+You probably haven't overridden `MaxHealth` on any instance. With every
+dummy at the default, the two paths produce identical results and the
+difference is invisible. Select one dummy in the level and change its
+`MaxHealth` in the Details panel — that's what makes the CDO behaviour
+observable.
 </details>
 
 <details>

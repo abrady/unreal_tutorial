@@ -213,7 +213,7 @@ Supporting literature, all pointing the same way:
    graduate to rather than something withheld.
    It also surfaces the MCP's limits, which is first-hand knowledge DREs will
    be asked for. "Can it author an InputAction asset?" is better answered by
-   someone who tried.
+   someone who tried — and the answer to "can it create a level?" is no.
 
 ---
 
@@ -493,6 +493,8 @@ The README carries the steps. Never both — duplication guarantees drift.
 | 3 | ~~UnrealMCP overlap~~ | — | **Resolved.** First-party is the neutral choice; no consolidation exposure. |
 | 3a | **First-party MCP is Experimental** (`IsExperimentalVersion: true`, `NoRedist`). API churn is likely between engine versions. | Grader and chapter text may break on upgrade | Accepted. Pin the engine version in `SETUP.md`. `NoRedist` is fine — internal only. |
 | 3b | **`bEnableToolSearch` / `bAutoStartServer` defaults** are both wrong for our use. | Silent "tool not found" confusion | Pin both in `SETUP.md` and assert them in `ch00_setup.py`. |
+| 3c | **The MCP cannot create or save-as a level.** Verified against 5.8.1: `save_assets` can't see a temp map, `load_level` needs an existing asset, and `create_level_instance` references one. There is no `new_level`. | Level authoring is a manual editor step | Accepted. `Lvl_FirstRoom.umap` is committed to the repo so nobody has to recreate it. Worth surfacing to learners as a real edge of the tool. |
+| 3d | **Property writes need a saved level.** `set_properties` returns `False` for actors in an unsaved temp map. | Ch 2's per-instance override check needs a real level | Resolved by 3c — the committed level carries a dummy with `MaxHealth` pre-overridden. |
 | 4 | **Why did this fail three times?** | Highest-value de-risking conversation available | Find the XR Game Engine Fundamentals owners and ask. |
 | 5 | **Grader fragility.** Driving a live editor is brittle; engine version bumps will break checks. | Ongoing maintenance | Keep assertions coarse. Budget maintenance explicitly. |
 | 6 | **Ch 3–5 overrun.** The three combat chapters are 60–90 min each, not 45. | Session runs ~5h, not a half day | Accepted and stated plainly. `ALabCharacter` is pre-built; if it still slips, Ch 5 moves to take-home. |

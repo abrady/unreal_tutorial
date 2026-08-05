@@ -25,23 +25,30 @@ MIN_EXPECTED_DEGREES = 5.0
 
 
 @pytest.fixture
-def dummy(pie: UnrealMcp):
-    """A spawned ATargetDummy in a running PIE session."""
-    if not lab.class_exists(pie, ACTOR_CLASS):
+def dummy(unreal: UnrealMcp):
+    """A dummy in a running PIE session.
+
+    Spawns into the editor world first, then starts PIE — the engine won't
+    create actors while PIE is active, since the editor world is the
+    template PIE duplicates from.
+    """
+    if not lab.class_exists(unreal, ACTOR_CLASS):
         pytest.fail(
             f"{ACTOR_CLASS} doesn't exist yet. Create it in "
             "Lab01_FirstRoom/Source/Lab01/ and do a full rebuild with the "
             "editor closed. See chapters/01-iteration-loop/README.md."
         )
 
-    existing = lab.find_actors(pie, ACTOR_CLASS)
-    if existing:
-        return pie, existing[0]
+    lab.ensure_in_level(unreal, ACTOR_CLASS)
 
-    spawned = lab.spawn(pie, ACTOR_CLASS)
-    if not spawned:
-        pytest.fail(f"{ACTOR_CLASS} exists but could not be spawned into the level")
-    return pie, spawned
+    with lab.pie_session(unreal):
+        actor = lab.first_actor(unreal, ACTOR_CLASS)
+        if not actor:
+            pytest.fail(
+                f"{ACTOR_CLASS} exists as a class but no instance reached the "
+                "running level."
+            )
+        yield unreal, actor
 
 
 def test_class_exists(unreal: UnrealMcp) -> None:
@@ -57,8 +64,7 @@ def test_class_exists(unreal: UnrealMcp) -> None:
 def test_has_body_and_head(dummy) -> None:
     """Two mesh components, so there's a dummy to look at."""
     unreal, actor = dummy
-    components = lab.components_of(unreal, actor)
-    meshes = [c for c in components if "mesh" in str(c).lower()]
+    meshes = lab.components_of_type(unreal, actor, "MeshComponent")
     assert len(meshes) >= 2, (
         f"{ACTOR_CLASS} has {len(meshes)} mesh component(s), expected at least 2 "
         "(a body and a head).\n"

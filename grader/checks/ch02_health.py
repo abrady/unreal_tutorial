@@ -1,18 +1,16 @@
 """Chapter 2 — health, the CDO, and the collector.
 
-Two lessons, four checks:
+Part A: the level ships a dummy whose MaxHealth is overridden per-instance.
+That override is applied *after* the constructor runs, so a constructor that
+sets `Health = MaxHealth` reads the class default and gets it wrong. Only a
+BeginPlay assignment sees the real value.
 
-  Part A  your constructor runs on the Class Default Object, where there
-          is no world and no per-instance data
-  Part B  the collector only sees pointers marked UPROPERTY
-
-test_damage_history_survives_gc is expected to FAIL on your first run.
-That's the exercise, not a bug in the lab.
+Part B: the collector only sees pointers marked UPROPERTY.
+test_damage_history_survives_gc is expected to FAIL on your first run —
+that's the exercise, not a bug in the lab.
 """
 
 from __future__ import annotations
-
-import time
 
 import pytest
 
@@ -21,25 +19,25 @@ from mcp_client import UnrealMcp
 
 ACTOR_CLASS = "ATargetDummy"
 
-# BeginPlay runs, then a collection is requested, then the result is read a
-# tick later. Give all of that room to happen.
+# Lvl_FirstRoom ships Dummy_2 with MaxHealth overridden to this. If the level
+# changes, change this with it.
+OVERRIDDEN_MAX_HEALTH = 250.0
 SETTLE_SECONDS = 2.0
 
 
 @pytest.fixture
-def dummy(pie: UnrealMcp):
-    """A spawned dummy that has had time to run its lifecycle."""
-    if not lab.class_exists(pie, ACTOR_CLASS):
-        pytest.fail(
-            f"{ACTOR_CLASS} doesn't exist yet — finish Chapter 1 first."
-        )
+def dummies(unreal: UnrealMcp):
+    """Every dummy in a running PIE session, after BeginPlay has settled."""
+    if not lab.class_exists(unreal, ACTOR_CLASS):
+        pytest.fail(f"{ACTOR_CLASS} doesn't exist yet — finish Chapter 1 first.")
 
-    actor = lab.spawn(pie, ACTOR_CLASS)
-    if not actor:
-        pytest.fail(f"{ACTOR_CLASS} could not be spawned")
+    lab.ensure_in_level(unreal, ACTOR_CLASS)
 
-    time.sleep(SETTLE_SECONDS)
-    return pie, actor
+    with lab.pie_session(unreal, warmup_seconds=SETTLE_SECONDS):
+        found = lab.find_actors(unreal, ACTOR_CLASS)
+        if not found:
+            pytest.fail(f"No {ACTOR_CLASS} reached the running level")
+        yield unreal, found
 
 
 def _flag(unreal: UnrealMcp, actor, name: str) -> bool:
@@ -56,63 +54,76 @@ def _flag(unreal: UnrealMcp, actor, name: str) -> bool:
 # -- Part A: the CDO ------------------------------------------------------
 
 
-def test_health_is_initialised_per_instance(dummy) -> None:
-    """Health is set from MaxHealth, and set somewhere that runs per instance."""
-    unreal, actor = dummy
-    health = lab.property_of(unreal, actor, "Health")
-    max_health = lab.property_of(unreal, actor, "MaxHealth")
+def test_health_starts_at_full(dummies) -> None:
+    """Every dummy begins at its own MaxHealth."""
+    unreal, actors = dummies
+    for actor in actors:
+        health = lab.property_of(unreal, actor, "Health")
+        max_health = lab.property_of(unreal, actor, "MaxHealth")
+        assert health is not None and max_health is not None, (
+            "Add Health and MaxHealth as UPROPERTYs on the dummy."
+        )
+        assert float(health) == pytest.approx(float(max_health)), (
+            f"A dummy has Health {health} but MaxHealth {max_health}.\n"
+            "If Health is 0 you never assigned it. See the next check for the "
+            "more interesting failure."
+        )
 
-    assert health is not None and max_health is not None, (
-        "Add Health and MaxHealth as UPROPERTYs on the dummy."
+
+def test_health_respects_per_instance_override(dummies) -> None:
+    """The dummy with an overridden MaxHealth starts at the overridden value.
+
+    This is the CDO lesson, and it's the check that actually distinguishes a
+    constructor assignment from a BeginPlay one. With every dummy left at the
+    default both approaches look identical; the overridden one separates them.
+    """
+    unreal, actors = dummies
+
+    overridden = [
+        actor
+        for actor in actors
+        if float(lab.property_of(unreal, actor, "MaxHealth") or 0)
+        == pytest.approx(OVERRIDDEN_MAX_HEALTH)
+    ]
+    assert overridden, (
+        f"No dummy in the level has MaxHealth == {OVERRIDDEN_MAX_HEALTH}.\n"
+        "Lvl_FirstRoom is supposed to ship one. If you rebuilt the level, "
+        "select a dummy and override MaxHealth in the Details panel."
     )
-    assert float(health) == pytest.approx(float(max_health)), (
-        f"Health is {health}, expected it to start at MaxHealth ({max_health}).\n"
-        "If Health is 0, you declared it but never assigned it anywhere that "
-        "runs per instance. If you set it in the constructor, that ran on the "
-        "Class Default Object before this dummy existed — use BeginPlay."
-    )
 
-
-def test_constructor_had_no_world(dummy) -> None:
-    """The constructor runs on the CDO, before any world exists."""
-    unreal, actor = dummy
-    assert not _flag(unreal, actor, "bHadWorldInConstructor"), (
-        "GetWorld() returned something in your constructor.\n"
-        "That shouldn't happen — the constructor runs on the Class Default "
-        "Object at editor startup. Check you're recording it in the "
-        "constructor body, and restart the editor so a stale CDO isn't reused."
-    )
-
-
-def test_begin_play_had_a_world(dummy) -> None:
-    """BeginPlay runs in a live world — this is where gameplay code goes."""
-    unreal, actor = dummy
-    assert _flag(unreal, actor, "bHadWorldInBeginPlay"), (
-        "GetWorld() was null in BeginPlay, which shouldn't be possible for a "
-        "spawned actor. Make sure BeginPlay calls Super::BeginPlay()."
-    )
+    for actor in overridden:
+        health = float(lab.property_of(unreal, actor, "Health") or 0)
+        assert health == pytest.approx(OVERRIDDEN_MAX_HEALTH), (
+            f"This dummy's MaxHealth is {OVERRIDDEN_MAX_HEALTH} but its Health "
+            f"started at {health}.\n\n"
+            "You set Health in the constructor. Per-instance overrides are "
+            "applied *after* the constructor runs, so it read the class "
+            "default instead of this dummy's value.\n\n"
+            "Move the assignment to BeginPlay."
+        )
 
 
 # -- Part B: garbage collection -------------------------------------------
 
 
-def test_damage_history_survives_gc(dummy) -> None:
-    """A UPROPERTY reference keeps its object alive. A raw pointer doesn't.
-
-    Expected to fail until you add UPROPERTY() to the member. That failure
-    is the lesson.
-    """
-    unreal, actor = dummy
-
-    assert _flag(unreal, actor, "bCollectionRan"), (
-        "No collection was observed, so the survival check below would be "
-        "meaningless.\n"
-        "ForceGarbageCollection(true) is a request, not an immediate call — "
-        "it runs at the next safe point. Read your flags a tick later, or "
-        "hook FCoreUObjectDelegates::GetPostGarbageCollect()."
+def test_gc_actually_ran(dummies) -> None:
+    """A collection happened, so the survival check below means something."""
+    unreal, actors = dummies
+    assert _flag(unreal, actors[0], "bCollectionRan"), (
+        "No collection was observed.\n"
+        "ForceGarbageCollection(true) is a request, not an immediate call — it "
+        "runs at the next safe point. Read your flags a tick later, or hook "
+        "FCoreUObjectDelegates::GetPostGarbageCollect()."
     )
 
-    assert _flag(unreal, actor, "bHistorySurvived"), (
+
+def test_damage_history_survives_gc(dummies) -> None:
+    """A UPROPERTY reference keeps its object alive. A raw pointer doesn't.
+
+    Expected to fail until you add UPROPERTY() to the member.
+    """
+    unreal, actors = dummies
+    assert _flag(unreal, actors[0], "bHistorySurvived"), (
         "Your damage history was collected.\n\n"
         "The GC walks the reflection graph. An unmarked pointer isn't in that "
         "graph, so the collector saw no references and freed the object — "

@@ -323,7 +323,8 @@ class UnrealMcp:
         """Reduce an MCP tool result to the useful part.
 
         Engine tools wrap their return as {"returnValue": ...}; that gets
-        peeled off so checks can assert on the value directly.
+        peeled off. Some tools then put a JSON *string* inside it, so a
+        second parse is attempted before giving up.
         """
         if result.get("isError"):
             raise McpError(UnrealMcp._text_of(result) or "tool reported an error")
@@ -341,7 +342,15 @@ class UnrealMcp:
                 return text
 
         if isinstance(value, dict) and set(value) == {"returnValue"}:
-            return value["returnValue"]
+            value = value["returnValue"]
+
+        if isinstance(value, str):
+            stripped = value.strip()
+            if stripped.startswith(("{", "[")):
+                try:
+                    return json.loads(stripped)
+                except json.JSONDecodeError:
+                    return value
         return value
 
     @staticmethod
