@@ -25,7 +25,7 @@ Either engine works:
 - **The Meta fork** — what most of DRE already runs
 
 The MCP plugin is Epic's, shipped in `Engine/Plugins/Experimental/`, so it's
-present in both. Nothing in the half day requires the MetaXR plugin, the
+present in both. Nothing in the lab requires the MetaXR plugin, the
 Android toolchain, or a headset.
 
 ## 2. Clone and open
