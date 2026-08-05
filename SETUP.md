@@ -11,10 +11,19 @@ You need a PC or Mac that can run Unreal. **You do not need a VR headset.**
 
 The lab depends on the engine's built-in MCP server, which landed in **5.8**.
 
-Either works:
+> **Strongly prefer a binary install from the Epic Launcher.**
+>
+> A source-built engine works, but building it is a multi-thousand-action
+> compile that can take an hour or more even on a fast machine — and a
+> partially-built engine fails in confusing ways (missing
+> `ShaderCompileWorker`, missing `UnrealEditor-Engine.dylib`) rather than
+> telling you it's incomplete. That is not how you want to spend the
+> morning. Binary installs also ship the helper programs already built.
+
+Either engine works:
 
 - **Vanilla Epic** Unreal 5.8+
-- **The Meta fork** (`Partner-Oculus-UE5`) — what most of DRE already runs
+- **The Meta fork** — what most of DRE already runs
 
 The MCP plugin is Epic's, shipped in `Engine/Plugins/Experimental/`, so it's
 present in both. Nothing in the half day requires the MetaXR plugin, the
@@ -123,17 +132,22 @@ UNREAL_MCP_URL=http://localhost:8123/mcp .venv/bin/python -m pytest
 **`Tool 'X' is not registered and tool-search is off`**
 A toolset plugin isn't enabled. Check step 3 and restart the editor.
 
-**`Unable to launch ShaderCompileWorker`**
-Source-built engines don't always build the helper programs. Check
-`Engine/Binaries/Mac/` (or `Win64/`) for `ShaderCompileWorker` and
-`InterchangeWorker`, and build any that are missing:
+**`Unable to launch ShaderCompileWorker`, or the editor dies during startup**
+A partially-built source engine. Check `Engine/Binaries/Mac/` (or `Win64/`)
+for `ShaderCompileWorker`, `InterchangeWorker`, and
+`UnrealEditor-Engine.dylib`. If any are missing the engine build never
+finished — build the editor target and let it complete:
 ```bash
-Engine/Build/BatchFiles/Mac/Build.sh ShaderCompileWorker Mac Development
+Engine/Build/BatchFiles/Mac/Build.sh UnrealEditor Mac Development
 ```
-Binary installs from the Epic Launcher already have these.
+Binary installs from the Epic Launcher already have all of this.
 
 > `UnrealLightmass` does **not** build on Apple Silicon. It's only needed for
 > baked lighting, which this lab doesn't use. Skip it.
+
+**`Hot-reloadable files are expected to contain a hyphen`**
+Unreal Build Tool tried a hot-reload build because the editor is running.
+Close the editor and build again.
 
 **Agent sees no Unreal tools**
 MCP clients read the tool list once at handshake. Start the editor first,
