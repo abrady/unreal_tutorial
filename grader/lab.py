@@ -114,6 +114,14 @@ def has_component_of_type(unreal: UnrealMcp, actor: Any, type_substring: str) ->
     return False
 
 
+def parent_of(unreal: UnrealMcp, component: Any) -> Any:
+    """The component this one is attached to, or None if it's a root/sibling."""
+    try:
+        return unreal.call("get_parent_component", {"component": _as_ref(component)})
+    except McpError:
+        return None
+
+
 def _as_ref(actor: Any) -> dict[str, str]:
     """Accept a refPath string, a raw dict, or a wrapped reference."""
     if isinstance(actor, str):
