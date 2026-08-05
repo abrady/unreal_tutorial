@@ -1,15 +1,16 @@
 # Unreal, the hard way (with an AI that won't do it for you)
 
-A half-day lab that takes a strong engineer who has never opened Unreal to a
-first-person room with a working door, a pressure plate, and a pickup — written
-in C++, verified by an automated grader, and debugged with an AI agent wired
-directly into the running editor.
+Build a combat gym. Shoot a target dummy, watch damage numbers pop off it,
+then attach a component and watch the dummy shoot back.
+
+In C++, from an empty project, verified by an automated grader, debugged with
+an AI agent wired directly into the running editor.
 
 > **Status: in development.** The design is settled
 > ([docs/plans](docs/plans/2026-08-04-unreal-mcp-tutorial-design.md)); the lab
 > itself is being built. Chapter 0 is the first thing that will work.
 
-**You do not need a VR headset.** You need a PC that can run Unreal.
+**You do not need a VR headset.** You need a PC or Mac that can run Unreal.
 
 ---
 
@@ -19,10 +20,9 @@ DRE engineers support partners shipping real Unreal titles. That job needs UE
 fluency, and there is currently no internal Unreal course — the Eng Bootcamp
 Immersive 3D path lists exactly one hands-on engine course, and it's Unity.
 
-This has been proposed three times since 2022 and never shipped, each time as a
-full curriculum. So this is deliberately **one lab**, complete and useful on its
-own. Extra chapters are take-home and optional. If the half day lands, we earn
-the rest.
+This has been proposed three times since 2022 and never shipped, each time as
+a full curriculum. So this is deliberately **one lab**, complete and useful on
+its own. Extra chapters are take-home and optional.
 
 ## What makes it different
 
@@ -30,33 +30,31 @@ the rest.
 when they're green.
 
 ```console
-$ pytest grader/checks/ch04_interaction.py
-FAILED  test_plate_opens_door       - BP_Door yaw was 0.0, expected ~90.0
-FAILED  test_pickup_is_consumed     - Pickup still present after overlap
+$ pytest grader/checks/ch04_damage.py
+FAILED  test_dummy_takes_damage    - Health still 100.0 after 3 hits
+FAILED  test_history_records_hit   - DamageHistory is empty
 ```
 
-The grader isn't reading your source. It boots your project, starts PIE, walks
-the player onto the plate, and asks the live editor what the door actually did.
-You cannot fake it, and you always know exactly how close you are.
+The grader isn't reading your source. It boots your project, starts PIE, fires
+a projectile at a dummy, and asks the live editor what actually happened. You
+can't fake it, and you always know exactly how close you are.
 
-**The AI is your debugger, not your author.** Unreal 5.8 ships an MCP server
-*inside the engine* — Epic's `ModelContextProtocol` plugin. You enable a
-checkbox and your agent is wired into the running editor: it can start PIE,
-inspect live actors, capture an annotated viewport with every actor's world
-position, and read real compiler errors. Same interface the grader uses. Ask
-it *"why is check 3 failing?"* and it can actually go look.
+**Your agent is inside the editor.** Unreal 5.8 ships Epic's
+`ModelContextProtocol` plugin. Enable a checkbox and your agent can start PIE,
+inspect live actors, and read real compiler errors — the same interface the
+grader uses. Ask it *"why is check 3 failing?"* and it can go look.
 
 You'll also add `UFUNCTION(meta = (AICallable))` to your own C++ and watch it
-appear as a tool the agent can call. The agent isn't a thing being done to
-you — it's a thing you extend.
+appear as a tool the agent can call. The agent isn't something done to you —
+it's something you extend.
 
-What it will not do is write your chapter for you. That's a rule in
+What it won't do is write your chapter. That's a rule in
 [`AGENTS.md`](AGENTS.md), and there's a reason.
 
 ## The reason
 
-Bastani et al. (2024) gave ~1000 students one of three things: no AI, GPT-4, or
-a guardrailed tutor that gave hints instead of answers.
+Bastani et al. (2024) gave ~1000 students one of three things: no AI, GPT-4,
+or a guardrailed tutor that gave hints instead of answers.
 
 | | Practice | Unassisted exam |
 |---|---|---|
@@ -68,54 +66,52 @@ Unrestricted AI made people dramatically better right up until you took it
 away, at which point they were *worse than if they'd never had it*. The
 guardrailed version kept the gains.
 
-Watching an agent build your game is the −17% condition. So during a chapter the
-agent explains, inspects, and diagnoses. Once your checks are green, the gloves
-come off — go compare your solution to the reference and ask it to tear yours
-apart.
+Watching an agent build your game is the −17% condition. So during a chapter
+the agent explains, inspects, and diagnoses. Once your checks are green, the
+gloves come off.
 
 Enforcement is a config file and an honour system. We're telling you the study
 result instead of pretending the guardrail is airtight.
 
 ## What you'll build
 
-A room. You walk into it, step on a plate, a door opens, you grab a thing.
-
-It is not impressive to look at. It is four hours of the specific concepts that
-make Unreal confusing to people who are already good at C++:
-
-| Ch | Topic | The thing that actually bites |
+| Ch | Build | The thing that actually bites |
 |---|---|---|
-| 0 | Setup *(pre-work — do this first)* | The build takes longer than you think |
-| 1 | Iteration loop, your first `AActor` | `.generated.h` ordering; live coding vs. full rebuild |
-| 2 | Lifecycle, GC, the CDO trap | Your constructor runs on an object that isn't your object |
-| 3 | Gameplay framework, Enhanced Input | Which of the six classes owns this, and why |
-| 4 | Collision, overlap, `IInteractable` | The response matrix, and the C++/Blueprint boundary |
+| 0 | Setup *(pre-work — do this first)* | The install is bigger than you think |
+| 1 | A target dummy, turning slowly | `.generated.h` order; components and attachment |
+| 2 | Give it health | Your constructor runs on an object that isn't your object |
+| 3 | You, and you can shoot | Which of six framework classes owns this |
+| 4 | Hits land, damage numbers pop | The collision matrix has two sides |
+| 5 | The dummy shoots back | Composition — the pattern Unreal is built on |
 
-Requires **Unreal 5.8 or newer** — the in-engine MCP plugin landed in 5.8.
-Works on vanilla Epic or the Meta fork; the plugin is Epic's, so both have it.
+**Chapters 1–5 are the session: roughly 5 hours.** Not a half day — 1 and 2
+run ~45 minutes, 3 through 5 run 60–90. Better to know that now.
 
-Chapter 2 is the one that matters. Every C++ engineer gets burned by UObject
-lifetime exactly once, and it's the line between copying Unreal tutorials and
-understanding Unreal. You'll get burned on purpose, in a controlled setting,
-with a grader that tells you when you've actually fixed it.
+Then, take-home and substantial (60–90 min each):
+
+| Ch | Build |
+|---|---|
+| 6 | Three dummies: AOE, homing missiles, spread shot |
+| 7 | Attacks driven by animation timing, via montage notifies |
+
+**Chapter 2 is the one that matters.** Every C++ engineer gets burned by
+UObject lifetime exactly once, and it's the line between copying Unreal
+tutorials and understanding Unreal. You'll get burned on purpose, with a
+grader that tells you when you've actually fixed it.
 
 ## About the VR part
 
-There isn't one, in the half day. Vanilla Unreal, desktop PIE, no MetaXR
-plugin, no Android toolchain.
+There isn't one, in the lab. Vanilla Unreal, desktop PIE, no MetaXR plugin, no
+Android toolchain, no headset.
 
-But Chapter 4 has you write interaction behind an `IInteractable` interface
-rather than in the pawn. That's not decoration — it's the reason the optional
-take-home capstone can swap in a VR pawn and change *zero* interaction code.
-The lesson about writing VR-ready systems is architectural, and you can learn it
-without owning a headset.
+But by Chapter 5 your ability components don't know what triggered them, your
+damage pipeline doesn't know what dealt the damage, and your firing code
+doesn't know what device sent `IA_Fire`. Swap the desktop pawn for a VR pawn
+and the combat layer is untouched.
 
-## Take-home chapters
-
-Optional, self-serve, after the half day: delegates and game state · UMG HUD
-from C++ · AI patrol with NavMesh, Behavior Trees and Blackboards (the best
-showcase of what live MCP inspection is for) · audio · packaging a standalone
-build · the VR pawn swap (headset required).
+That's the real lesson about writing VR-ready systems, and it's architectural
+— you can learn it without owning a headset. The optional capstone does the
+swap if you have one.
 
 ## Getting started
 
@@ -141,6 +137,10 @@ build · the VR pawn swap (headset required).
 | `AGENTS.md` | Tutor-mode rules for your AI client |
 | `docs/plans/` | Why the lab is shaped like this |
 
-Chapter checkpoints are git tags: branch from `chNN-start`, and diff against
+Chapters 1–6 need **zero binary assets** — the gym is built from engine
+primitives. Chapter 7 pulls animation content from the engine template, and
+it's gitignored.
+
+Chapter checkpoints are git tags: branch from `chNN-start`, diff against
 `chNN-solution` when you're stuck. Try not to look early — the checkpoint is
 the only honest signal you'll get about whether it stuck.

@@ -11,3 +11,7 @@ Lab01_FirstRoom/DerivedDataCache/
 
 # generated build counter
 Lab01_FirstRoom/Build/*/*.PackageVersionCounter
+
+# Ch7 animation assets (opt-in, copied from the engine template)
+Lab01_FirstRoom/Content/Lab01/Anims/
+Lab01_FirstRoom/Content/Lab01/Characters/

@@ -15,6 +15,28 @@ project, using the engine's built-in MCP as the primary learning instrument.
 Success is **not** "they finished the lab." Success is "three weeks later they
 can open an unfamiliar UE project and orient themselves."
 
+## What they build: a combat gym
+
+A room with target dummies. You shoot them, damage numbers pop off, and the
+dummies shoot back with different attacks.
+
+This replaces an earlier design (a first-person room with a pressure plate and
+a door). The gym is better for three concrete reasons:
+
+1. **Components become the centre of the design, not a bolt-on.** An ability
+   component attached to a dummy is the canonical composition example — swap
+   the component, swap the behaviour, never touch the dummy class. The door
+   design had no natural home for the component model, which is arguably the
+   single most important architectural pattern in Unreal.
+2. **Nothing is throwaway.** Every chapter's output survives into the final
+   gym. The door design opened with a rotating plate that got abandoned.
+3. **The CDO lesson gains real stakes.** "Why does setting Health in the
+   constructor change every dummy, but setting it in BeginPlay change only
+   one?" is a consequence someone will actually hit, unlike a synthetic flag.
+
+It is also closer to what DRE partners actually ship, and it translates to VR
+more naturally than a pressure plate does.
+
 ---
 
 ## Audience
@@ -227,19 +249,24 @@ wearing a tutorial costume. That reusability is part of the pitch.
 
 ## No headset required
 
-Hard requirement for the half day.
+Hard requirement for the session.
 
 - Vanilla Epic Unreal. **No MetaXR plugin, no Android/Quest toolchain** in the
-  half day — that alone saves substantial setup time and disk.
+  session — that alone saves substantial setup time and disk.
 - Desktop PIE only.
 - Stated plainly in the README: *you need a PC that can run Unreal. You do not
   need a headset.*
 - All VR content lives behind a clearly-marked optional take-home appendix.
 
-The VR bridge is architectural, not incidental: Chapter 4 introduces an
-`IInteractable` interface. The optional VR capstone swaps the pawn and leaves
-every interaction implementation untouched. That is the actual lesson about
-building VR-ready code, and it's teachable without a headset.
+The VR bridge is architectural, not incidental. Chapter 5 puts attacks behind
+an **ability component**, and Chapter 3 puts firing behind an **Enhanced Input
+action**. Neither knows what triggered it. Swapping the desktop pawn for VR
+hands changes the pawn and the mapping context, and touches no combat code.
+That is the actual lesson about building VR-ready systems, and it is teachable
+without a headset.
+
+Combat also translates to VR far more naturally than a pressure plate does,
+which makes the claim more honest than it was under the previous design.
 
 ---
 
@@ -247,7 +274,7 @@ building VR-ready code, and it's teachable without a headset.
 
 ### Chapter 0 — Setup (async pre-work, gated)
 
-**This must be done before the half day starts or the attendee is dead.**
+**This must be done before the session starts or the attendee is dead.**
 
 Unreal install is enormous and the first compile is long. Setup gets its own
 verification script; a green `pytest grader/checks/ch00_setup.py` is the
@@ -259,62 +286,111 @@ built-in `ModelContextProtocol` plugin, setting `bAutoStartServer=True` and
 handshake confirmed.
 
 Materially lighter than it would have been with a third-party plugin — no
-plugin clone and no plugin build. The engine build is still the long pole.
+plugin clone and no plugin build. The engine build is still the long pole,
+which is why the Epic Launcher binary is strongly recommended over a source
+engine (see the BuildId note under Risks).
 
-### Half day — 4 chapters
+### The session — 5 chapters, ~5 hours
 
-Roughly 45 minutes each plus breaks.
+**Not a half day.** Chapters 1–2 run ~45 minutes; 3–5 run 60–90. Called out
+honestly in the README rather than discovered at hour four.
 
-**Ch 1 — The iteration loop and your first Actor**
+**Ch 1 — The iteration loop, and the dummy**
 Reflection macros (`UCLASS`/`UPROPERTY`/`UFUNCTION`), the `.generated.h`
-ordering rule, `AActor`, components, live coding vs. full rebuild.
-Build: `ARotatingPlate` — an actor with a mesh that rotates on Tick.
-Front-loads the #1 newcomer killer (the build loop) while the task is trivial
-enough that any failure is diagnosable.
+ordering rule, `AActor`, **components and attachment**, tick opt-in, live
+coding vs. full rebuild.
+Build: `ATargetDummy` — a cylinder body with a sphere head **attached** to it,
+rotating slowly so you can practise hitting a moving target.
+The two-component build is deliberate: it forces `SetupAttachment`, root
+component semantics, and the transform hierarchy while the task is still
+trivial enough that any failure is diagnosable. Front-loads the #1 newcomer
+killer (the build loop) at the same time.
 *MCP role:* the `LiveCodingToolset` for hot-patching, and the first experience
 of the agent explaining a real compiler error.
 *Stretch:* mark one method `UFUNCTION(meta = (AICallable))`, restart the
-client, and watch your own C++ show up as a tool the agent can call. Cheap to
-do, and it reframes the agent as something you extend.
-*Grader:* class exists, spawns, has a mesh component, rotation changes across
-two PIE samples.
+client, and watch your own C++ show up as a tool the agent can call.
+*Grader:* class exists, spawns, has a two-node component tree with the head
+parented to the body, and rotation changes across two PIE samples.
 
-**Ch 2 — Lifecycle, GC, and the CDO trap**
+**Ch 2 — Health, the CDO, and the collector**
 Constructor vs `BeginPlay` vs `Tick` vs `OnConstruction`. Why the constructor
 runs on the Class Default Object. `UPROPERTY()` vs. raw pointer and garbage
-collection. `TObjectPtr`.
-Build: deliberately break it — a raw pointer member that gets collected —
-then fix it. **Productive failure, explicitly staged.**
-This is *the* chapter for this audience. Everyone with a C++ background gets
-burned here, and it's the line between copying Unreal tutorials and
-understanding Unreal.
-*Grader:* object survives a forced GC; a specific value is set in `BeginPlay`,
-not the constructor.
+collection. `TObjectPtr`, `TWeakObjectPtr`.
+Build: give the dummy `Health`/`MaxHealth`, and a `UDamageHistory` object that
+records hits.
+Part A is the CDO with stakes: setting health in the constructor changes the
+default for *every* dummy; setting it in `BeginPlay` changes one.
+Part B is staged failure: store the damage history in a plain pointer, force a
+collection, watch it vanish. Then add `UPROPERTY()`.
+This is *the* chapter for this audience. The damage history also carries
+forward — Chapter 4 reads it to draw damage numbers.
+*Grader:* constructor saw no world; `BeginPlay` did; a collection ran; the
+damage history survived it.
 
-**Ch 3 — Gameplay framework and Enhanced Input**
-`GameMode` / `GameState` / `PlayerController` / `Pawn` / `Character`,
-possession. Enhanced Input: InputAction assets, mapping contexts, C++ binding.
-Build: a first-person character you can walk around with.
-Much is template-provided; the learning is *which class owns what*.
-*Grader:* PIE, inject input, assert pawn location changed.
-*Risk:* most likely chapter to overrun. Ship the Character largely done and
-have them wire only the input binding.
+**Ch 3 — You, and you can shoot**
+`GameMode` / `GameState` / `PlayerController` / `PlayerState` / `Pawn` /
+`Character`, possession, and the server/client ownership split. Enhanced
+Input: InputAction assets, mapping contexts, C++ binding. `SpawnActor`.
+Build: firing. The `ALabCharacter` (camera, movement) is **given**; the
+learner wires `IA_Fire` and spawns an `AProjectile` with a
+`UProjectileMovementComponent`.
+Pre-building the character is a deliberate scope cut — character boilerplate
+teaches little and eats the clock. The projectile reinforces components.
+*Grader:* PIE, inject fire input, assert a projectile exists in the world.
 
-**Ch 4 — Collision, overlap, and the interaction interface**
+**Ch 4 — Hits, damage, and floating numbers**
 Collision channels/profiles/responses (the response matrix genuinely confuses
-people), overlap events, `IInteractable` as a `UINTERFACE`,
-`BlueprintNativeEvent` and the C++/Blueprint boundary.
-Build: pressure plate opens the door; a pickup implements the same interface.
-*Grader:* PIE, teleport pawn onto plate, assert door yaw; overlap the pickup,
-assert consumed.
-*Payoff:* "Congratulations, you built a thing."
+people), hit vs. overlap events, `ApplyDamage`/`TakeDamage`, `DrawDebugString`.
+Build: projectiles damage dummies, and debug damage numbers pop off the hit.
+The payoff moment — the first time the gym feels like a game.
+*Grader:* PIE, fire at a dummy, assert health decreased and the damage history
+recorded the hit.
+
+**Ch 5 — Ability components: the dummy shoots back**
+`UActorComponent` vs `USceneComponent`, component lifecycle and
+`TickComponent`, spawning from a component, and **composition over
+inheritance** as Unreal's central architectural pattern.
+Build: a `UAbilityComponent` base and a `UCannonAbilityComponent` that fires
+back at the player on a cooldown. Attach it to a dummy and the dummy is
+suddenly dangerous — without editing `ATargetDummy` at all.
+This is the components chapter and the session climax. It is also the chapter
+that makes the VR claim true: the ability doesn't know what triggered it.
+*Grader:* PIE, wait past the cooldown, assert a dummy-spawned projectile
+exists and the player took damage.
 
 ### Take-home chapters (optional, self-serve)
 
-Delegates and game state · UMG HUD from C++ · AI patrol with NavMesh /
-Behavior Tree / Blackboard (the best showcase of MCP live inspection) ·
-audio · packaging a standalone build · **optional VR pawn swap** (headset
-required, explicitly marked).
+Substantial — 60–90 minutes each, not a quick afternoon. Said plainly in the
+README.
+
+**Ch 6 — Three dummies, three powers.** An AOE dummy, a homing-missile dummy,
+and a spread-shot dummy over the Chapter 5 base. Virtual dispatch,
+data-driven configuration, and `UPROPERTY(EditAnywhere)` for designer-tunable
+values.
+
+**Ch 7 — Montages and AnimNotify.** Drive attacks off animation timing rather
+than a cooldown timer. Copies Epic's `Variant_Combat` montages
+(`AM_ComboAttack`, `AM_ChargedAttack`) from `TP_ThirdPerson`; the learner
+writes their own `AnimNotify` classes and wires them to the ability system.
+Epic's `AnimNotify_DoAttackTrace` is shown as the reference implementation
+**after** they build theirs.
+
+Also available: UMG health bars · AI with NavMesh / Behavior Trees /
+Blackboards (the best showcase of MCP live inspection) · audio · packaging ·
+**optional VR pawn swap** (headset required, explicitly marked).
+
+### Asset strategy
+
+**Chapters 1–5 require zero binary assets.** The gym is `Plane` + `Cube`; the
+dummy is `Cylinder` + `Sphere`; projectiles are `Sphere`. All from
+`/Engine/BasicShapes`. The repo stays git-friendly and needs no LFS.
+
+Binary content enters only at **Chapter 7**, which is take-home, so the 7.8 MB
+of `TP_ThirdPerson` combat content is opt-in for the people who want it.
+
+Verified: the engine ships no mannequin in `Engine/Content` (only
+`SkeletalCube` and `DefaultSkeletalMesh`, neither animated). The mannequin and
+montages live in `Templates/TP_ThirdPerson/Content/Variant_Combat/`.
 
 ---
 
@@ -331,9 +407,12 @@ unreal_tutorial/
     slides/                     deck source
   chapters/
     01-iteration-loop/README.md
-    02-lifecycle-and-gc/README.md
-    03-framework-and-input/README.md
-    04-collision-and-interaction/README.md
+    02-health-and-gc/README.md
+    03-shooting/README.md
+    04-damage/README.md
+    05-ability-components/README.md
+    06-powers/README.md            take-home
+    07-montage-notifies/README.md  take-home
   Lab01_FirstRoom/              the UE project
     Lab01.uproject
     Source/Lab01/
@@ -406,7 +485,8 @@ The README carries the steps. Never both — duplication guarantees drift.
 | 3b | **`bEnableToolSearch` / `bAutoStartServer` defaults** are both wrong for our use. | Silent "tool not found" confusion | Pin both in `SETUP.md` and assert them in `ch00_setup.py`. |
 | 4 | **Why did this fail three times?** | Highest-value de-risking conversation available | Find the XR Game Engine Fundamentals owners and ask. |
 | 5 | **Grader fragility.** Driving a live editor is brittle; engine version bumps will break checks. | Ongoing maintenance | Keep assertions coarse. Budget maintenance explicitly. |
-| 6 | **Ch 3 overrun.** Most content-dense chapter. | Blows the half-day budget | Pre-build the Character; learner wires input only. |
+| 6 | **Ch 3–5 overrun.** The three combat chapters are 60–90 min each, not 45. | Session runs ~5h, not a half day | Accepted and stated plainly. `ALabCharacter` is pre-built; if it still slips, Ch 5 moves to take-home. |
+| 9 | **Scope creep from the gym.** Combat invites "just one more power." | Session bloat | Ch 6–7 are firmly take-home. The in-session gym is one dummy, one player weapon, one enemy ability. |
 | 7 | **Meta Training Governance** (wiki updated 2026-07-20) may impose course-category / registration obligations. | Process | Check before launch. |
 | 8 | **Vanilla Epic vs. Meta fork.** Local tree is `Partner-Oculus-UE5`. | Lower than assumed | **Largely resolved.** The MCP plugin is an Epic first-party plugin present in both, so the lab is portable. Target whatever the team already has built; note portability in `SETUP.md`. |
 
