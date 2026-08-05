@@ -8,3 +8,6 @@ Lab01_FirstRoom/Binaries/
 Lab01_FirstRoom/Intermediate/
 Lab01_FirstRoom/Saved/
 Lab01_FirstRoom/DerivedDataCache/
+
+# generated build counter
+Lab01_FirstRoom/Build/*/*.PackageVersionCounter

@@ -13,12 +13,11 @@ The lab depends on the engine's built-in MCP server, which landed in **5.8**.
 
 > **Strongly prefer a binary install from the Epic Launcher.**
 >
-> A source-built engine works, but building it is a multi-thousand-action
-> compile that can take an hour or more even on a fast machine — and a
-> partially-built engine fails in confusing ways (missing
-> `ShaderCompileWorker`, missing `UnrealEditor-Engine.dylib`) rather than
-> telling you it's incomplete. That is not how you want to spend the
-> morning. Binary installs also ship the helper programs already built.
+> A source-built engine works, but the first build of the project's editor
+> target pulls in most of the engine's editor modules — ~2,700 compile
+> actions, measured at 24 minutes on a 16-core machine. Binary installs skip
+> all of that and ship the helper programs already built. That is not how you
+> want to spend the morning.
 
 Either engine works:
 
@@ -132,18 +131,36 @@ UNREAL_MCP_URL=http://localhost:8123/mcp .venv/bin/python -m pytest
 **`Tool 'X' is not registered and tool-search is off`**
 A toolset plugin isn't enabled. Check step 3 and restart the editor.
 
-**`Unable to launch ShaderCompileWorker`, or the editor dies during startup**
-A partially-built source engine. Check `Engine/Binaries/Mac/` (or `Win64/`)
-for `ShaderCompileWorker`, `InterchangeWorker`, and
-`UnrealEditor-Engine.dylib`. If any are missing the engine build never
-finished — build the editor target and let it complete:
+**`Unable to launch ShaderCompileWorker`**
+Source-built engines don't always build the helper programs. Check
+`Engine/Binaries/Mac/` (or `Win64/`) for `ShaderCompileWorker` and
+`InterchangeWorker`, and build any that are missing:
 ```bash
-Engine/Build/BatchFiles/Mac/Build.sh UnrealEditor Mac Development
+Engine/Build/BatchFiles/Mac/Build.sh ShaderCompileWorker Mac Development
 ```
-Binary installs from the Epic Launcher already have all of this.
+Binary installs from the Epic Launcher already have these.
+
+> Note when checking by hand on macOS: engine module binaries carry a `lib`
+> prefix (`libUnrealEditor-Engine.dylib`). The helper *programs* don't.
 
 > `UnrealLightmass` does **not** build on Apple Silicon. It's only needed for
 > baked lighting, which this lab doesn't use. Skip it.
+
+**The first project build takes ~25 minutes**
+On a source engine, building the project's editor target can pull in most of
+the engine's editor modules — roughly 2,700 compile actions, about 24 minutes
+on 16 cores. This is a one-time cost, but it's exactly why the Epic Launcher
+binary is the recommended path for the lab.
+
+**Editor seems to launch but the MCP server never comes up**
+Check for a modal dialog behind your other windows. The most common one is
+**"Missing Lab01 Modules — built with a different engine version. Would you
+like to rebuild them now?"** It blocks startup, so from the outside this
+looks identical to a broken MCP server.
+
+Click **Yes**. It means your engine and your project module drifted apart —
+usually because the engine was rebuilt after the project module was. Nothing
+is wrong with your code.
 
 **`Hot-reloadable files are expected to contain a hyphen`**
 Unreal Build Tool tried a hot-reload build because the editor is running.
