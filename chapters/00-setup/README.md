@@ -114,6 +114,70 @@ Not style. The compiler doesn't care, but UHT does:
 Odd consequence worth knowing: the reflection system drops the prefix.
 `ATargetDummy` in your code is `TargetDummy` in an asset path.
 
+### There is one special instance of every class
+
+This one has no equivalent in normal C++, and it's the thing most likely to
+confuse you later, so it's worth knowing the name now.
+
+At editor startup, Unreal creates **exactly one instance of every `UCLASS`**,
+before any level loads. It's called the **Class Default Object** — the CDO.
+It isn't in a level, nothing ticks it, and you'll never see it in the
+viewport. It exists to be a *template*.
+
+Every actor you place or spawn is **copied from the CDO** and then patched
+with whatever that particular instance overrides.
+
+```
+     ATargetDummy CDO          created once, at startup
+         │  copy
+         ├─── dummy in the level      then: apply its overrides
+         └─── dummy you spawned       then: apply its overrides
+```
+
+Two consequences you'll meet immediately:
+
+- **Your constructor runs on the CDO**, at startup, before any world exists.
+  It also runs per instance. Same code, two very different contexts.
+- `CreateDefaultSubobject` only works in a constructor, because it's building
+  the *template's* component layout for instances to copy.
+
+That's as far as we'll go here. **Chapter 2 is where this stops being trivia**
+— there's a specific way it will surprise you, and you'll find it by hitting
+it rather than by being told.
+
+### Garbage collection exists
+
+`UObject`s are not `new`/`delete`. They're garbage collected, and the
+collector finds your pointers by walking the reflection data UHT generated.
+
+Which means a pointer without `UPROPERTY()` is **invisible to it**. The object
+gets freed while your pointer still points at it. No error, no warning — it
+works perfectly until a collection happens to run.
+
+Also Chapter 2. Also on purpose.
+
+## Two languages, one project
+
+Unreal projects are written in **C++ and Blueprint**, and the split is a
+convention worth learning on day one:
+
+> **C++ owns behaviour. Blueprint owns data.**
+
+The usual shape is a C++ base class with a Blueprint subclass on top:
+
+```
+AEnemyBase        (C++)        movement, health, attack logic
+    └─ BP_Goblin  (Blueprint)   which mesh, which sounds, how much health
+```
+
+A programmer writes the class and exposes knobs with
+`UPROPERTY(EditDefaultsOnly)`. A designer opens the Blueprint and turns them,
+without a compile.
+
+You'll do this at the end of Chapter 1. It matters for DRE specifically:
+every partner project you open will look like this, and knowing where the
+boundary sits tells you whether a bug lives in code or in data.
+
 ---
 
 ## The iteration loop

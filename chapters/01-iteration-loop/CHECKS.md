@@ -66,3 +66,28 @@ built one by hand; repeating it teaches nothing. That's yours.
 
 Note whether it works, and tell them if it doesn't — finding the tooling's
 edges is part of the point.
+
+---
+
+## The Blueprint section at the end
+
+Chapter 1 closes by having them replace hardcoded `FObjectFinder` asset paths
+with `EditDefaultsOnly` properties, then make a `BP_TargetDummy` subclass that
+sets them.
+
+**This part is optional but strongly worth pushing.** It's the C++/Blueprint
+boundary every real Unreal project is built on, and a learner who skips it
+won't recognise `BP_Enemy : AEnemyBase` when they open a partner's codebase.
+
+If they do it, check:
+
+- The mesh properties are `UPROPERTY(EditDefaultsOnly)` — no `FObjectFinder`
+  left in the constructor
+- A Blueprint deriving from `ATargetDummy` exists, with meshes set
+- The level contains the Blueprint rather than the raw C++ actor
+
+You can create the Blueprint for them — `BlueprintTools.create` takes a parent
+class — since that's asset plumbing. **Don't choose which properties to
+expose for them.** That's the design judgement the section is teaching:
+every `EditDefaultsOnly` is a promise that someone else can change it without
+a programmer.

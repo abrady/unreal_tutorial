@@ -181,8 +181,8 @@ Green means you're done.
 
 One dummy is a test case. A gym needs several.
 
-You've built one by hand, so you know what it's made of. **Ask your agent to
-place four more** in a firing line, spaced a few metres apart.
+You've built one by hand, so you know what it's made of. **Ask your assistant
+to place four more** in a firing line, spaced a few metres apart.
 
 That's a level-editing operation, not a code one — exactly the kind of thing
 the MCP should be good at and you shouldn't be doing by hand. Note whether it
@@ -190,6 +190,71 @@ works, and how it goes wrong if it doesn't.
 
 This is the pattern for the whole lab: **do it once to understand it, then
 hand off the repetition.**
+
+---
+
+## One more thing: what you just wrote isn't how it ships
+
+Your constructor almost certainly contains something like this:
+
+```cpp
+static ConstructorHelpers::FObjectFinder<UStaticMesh> Cyl(
+    TEXT("/Engine/BasicShapes/Cylinder.Cylinder"));
+Body->SetStaticMesh(Cyl.Object);
+```
+
+That works, every Unreal tutorial does it, and **production code avoids it.**
+You've hardcoded an asset path into compiled code. Changing the dummy's mesh
+now requires a programmer and a rebuild — which is exactly the wrong shape
+for something an artist should be able to swap in ten seconds.
+
+### The pattern you'll see in every real project
+
+**C++ owns behaviour. Blueprint owns data.**
+
+The C++ class declares a knob and says nothing about what goes in it:
+
+```cpp
+UPROPERTY(EditDefaultsOnly, Category = "Visuals")
+TObjectPtr<UStaticMesh> BodyMesh;
+```
+
+Then a Blueprint *subclass* fills it in:
+
+```
+ATargetDummy          (C++)     tick, rotation, later: health and damage
+    └─ BP_TargetDummy (Blueprint)  which meshes, what colour, spin rate
+```
+
+Nobody recompiles to retune a dummy. A designer opens `BP_TargetDummy`,
+changes a value, hits play.
+
+`EditDefaultsOnly` means "editable on the class, not per placed instance" —
+which is what you want for something every dummy shares. `EditAnywhere`
+would also let someone override it on one dummy in the level.
+
+### Do it
+
+1. Replace the `FObjectFinder` calls with `EditDefaultsOnly` mesh properties.
+2. Make a Blueprint class deriving from `ATargetDummy`, called
+   `BP_TargetDummy`, in `Content/CombatGym/`.
+3. Set the body and head meshes on it.
+4. Put a `BP_TargetDummy` in the level instead of the raw C++ actor.
+
+Your assistant can create the Blueprint for you — that's asset plumbing, not
+learning. But **you** decide which properties to expose, because that's the
+design judgement: every `EditDefaultsOnly` you add is a promise that someone
+else can change it without you.
+
+### Why this matters more than it looks
+
+Open any partner's Unreal project and you'll find this everywhere —
+`BP_Enemy` inheriting `AEnemyBase`, `BP_Rifle` inheriting `AWeaponBase`.
+If you don't know where that boundary sits, you can't tell whether a bug
+lives in code or in data, and that's the first question worth asking.
+
+It also sets up Chapter 5. Part of the argument for ability components is
+that a designer can attach one in a Blueprint without touching C++ at all.
 
 On to [Chapter 2](../02-health-and-gc/).
 
