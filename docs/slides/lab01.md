@@ -48,12 +48,17 @@ Every chapter ships **failing checks**. You're done when they're green.
 
 ```console
 $ python3 grader/check.py ch04
-FAILED  test_plate_opens_door    - BP_Door yaw was 0.0, expected ~90.0
-FAILED  test_pickup_is_consumed  - Pickup still present after overlap
+
+ch04_damage  Hits, damage, and floating numbers.
+  ✗ dummy lost health
+      Health is still 100.0 after the projectile hit.
+  ✗ hit was recorded
+      DamageHistory is empty.
 ```
 
 The grader doesn't read your source. It boots your project, starts PIE,
-walks the player onto the plate, and asks the **live editor** what happened.
+puts a projectile in front of a dummy, and asks the **live editor** what
+happened.
 
 ---
 
@@ -132,7 +137,7 @@ It's something you build on. Partners will ask you about this.</span>
 <!-- _class: lead -->
 
 # Chapter 1
-## The iteration loop, and your first Actor
+## The iteration loop, and the dummy
 
 ---
 
@@ -281,7 +286,7 @@ and the same code path for keyboard, gamepad, and VR controllers.
 <!-- _class: lead -->
 
 # Chapter 4
-## Collision and interaction
+## Collision and damage
 
 ---
 
@@ -300,33 +305,75 @@ this matrix.</span>
 
 ---
 
-## Interfaces, and the C++/Blueprint boundary
+## The damage pipeline
 
 ```cpp
-UINTERFACE(MinimalAPI, Blueprintable)
-class UInteractable : public UInterface { GENERATED_BODY() };
-
-class IInteractable
-{
-    GENERATED_BODY()
-public:
-    UFUNCTION(BlueprintNativeEvent)
-    void Interact(AActor* Instigator);
-};
+UGameplayStatics::ApplyDamage(HitActor, Damage,
+                              InstigatorController, this, DamageType);
 ```
 
-`BlueprintNativeEvent` = C++ default, overridable in Blueprint.
+The receiver overrides `AActor::TakeDamage`.
 
-The pawn talks to `IInteractable`. It never knows about doors or pickups.
+**Call `Super::TakeDamage` and respect what it returns** — that's where
+damage modifiers land. The number you asked for is not always the number
+that applies.
 
 ---
 
-## Why that interface is the point
+<!-- _class: lead -->
 
-The pawn doesn't implement interaction. It **asks** for it.
+# Chapter 5
+## Ability components
 
-Swap the desktop pawn for a VR pawn and every door, plate, and pickup
-keeps working, untouched.
+---
+
+## Composition, not inheritance
+
+You want a dummy that shoots. And one that shoots *and* explodes.
+
+| Inheritance | Composition |
+|---|---|
+| `AShootingDummy`, `AExplodingDummy`… | Attach two components |
+| A new class per combination | No new class |
+| Diamond, eventually | A designer can do it in the editor |
+
+<span class="small">This is why `AActor` is nearly empty. It's a bag you
+hang components on.</span>
+
+---
+
+## Which component base?
+
+| | Has a transform? | Use it for |
+|---|---|---|
+| `UActorComponent` | **no** | pure behaviour — abilities, health |
+| `USceneComponent` | yes | anything needing a position |
+
+Reaching for `USceneComponent` by reflex is a common mistake. An ability
+doesn't need a location.
+
+---
+
+## Keep the owner generic
+
+```cpp
+AActor* Owner = GetOwner();   // not ATargetDummy*
+```
+
+The moment you cast to `ATargetDummy`, the component only works on dummies.
+
+Leave it as `AActor` and the same ability drops onto a turret, a barrel,
+or the player.
+
+---
+
+## Why that component is the point
+
+The ability doesn't know what triggered it. The damage pipeline doesn't
+know what dealt the damage. Firing doesn't know what sent `IA_Fire`.
+
+Swap the desktop pawn for a VR pawn and the whole combat layer is
+untouched.
 
 <span class="big">That's the VR lesson.</span>
 
@@ -351,6 +398,6 @@ Take-home, self-serve, optional:
 <!-- _class: lead -->
 <!-- _paginate: false -->
 
-# Go build a room
+# Go build the gym
 
 <span class="small">`python3 grader/check.py ch01`</span>

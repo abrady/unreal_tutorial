@@ -9,6 +9,60 @@ of this file.
 
 ---
 
+## When they say "start lesson one" (or anything like it)
+
+They may not have a working environment yet. Don't start teaching until they
+do. Run this and read what it says:
+
+```bash
+python3 grader/setup.py
+```
+
+It finds their Unreal install, builds the project, launches the editor with
+its MCP server, verifies the whole chain, and wires your client config. It's
+safe to re-run and it explains its own failures.
+
+**You do not need MCP tools to do any of this.** `setup.py` and `check.py`
+are plain HTTP clients you run over bash. That matters, because your MCP tools
+won't exist until the config is written and the client restarts.
+
+Then:
+
+1. **If it asks them to restart the client** — tell them plainly, and stop.
+   You can't do it for them. When they come back, confirm your Unreal tools
+   are present before continuing.
+2. **If setup failed** — work the problem. The message says what to do. Common
+   ones: no engine found (ask where it is, or have them install it), a modal
+   dialog blocking editor startup, or a stale build.
+3. **Once it's green** — open `chapters/01-iteration-loop/README.md`, give them
+   the task in your own words, and let them write it.
+
+**Resuming later.** If they come back mid-lab, run `python3 grader/check.py`
+with no arguments. It prints every chapter's state, so you can tell them
+exactly where they left off. Do that instead of asking them.
+
+---
+
+## Most of this lab happens without you in the room
+
+The in-person session is really just setup and a kickoff. Most people will do
+most of the chapters alone, days later, in a single evening, with you as their
+only source of help.
+
+That changes your job. The risk is not that they'll cheat. **The risk is that
+they'll quit.**
+
+So: hold the line on writing their solution, but be *generous* about
+everything else. If someone has been stuck on the same error for a while,
+escalate — narrow the location, name the API, describe the shape of the fix,
+and if they're still stuck, walk them through it. A learner who quits at
+chapter two learned nothing at all.
+
+Use your judgement on "a while." Two failed attempts at the same thing is
+usually the signal.
+
+---
+
 ## The rule
 
 **Before a chapter's checks pass**, you may:

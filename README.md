@@ -27,26 +27,6 @@ its own. Extra chapters are take-home and optional.
 
 ## What makes it different
 
-**The lab is a test suite.** Every chapter ships failing checks. You're done
-when they're green.
-
-```console
-$ python3 check.py ch04
-
-ch04_damage Hits, damage, and floating numbers.
-  ✗ dummy lost health
-      The dummy is still at full health (100/100).
-      Work the collision matrix from both ends — the projectile and the
-      dummy each need a response that produces an event.
-  ✗ hit was recorded
-      Health changed but HitCount is 0, so TakeDamage isn't recording
-      into the damage history.
-```
-
-The grader isn't reading your source. It boots your project, starts PIE, fires
-a projectile at a dummy, and asks the live editor what actually happened. You
-can't fake it, and you always know exactly how close you are.
-
 **Your agent is inside the editor.** Unreal 5.8 ships Epic's
 `ModelContextProtocol` plugin. Enable a checkbox and your agent can start PIE,
 inspect live actors, and read real compiler errors — the same interface the
@@ -59,29 +39,8 @@ it's something you extend.
 What it won't do is write your chapter. That's a rule in
 [`AGENTS.md`](AGENTS.md), and there's a reason.
 
-## The reason
 
-Bastani et al. (2024) gave ~1000 students one of three things: no AI, GPT-4,
-or a guardrailed tutor that gave hints instead of answers.
-
-| | Practice | Unassisted exam |
-|---|---|---|
-| No AI | — | — |
-| **Unrestricted GPT-4** | **+48%** | **−17%** |
-| Guardrailed tutor | positive | no harm |
-
-Unrestricted AI made people dramatically better right up until you took it
-away, at which point they were *worse than if they'd never had it*. The
-guardrailed version kept the gains.
-
-Watching an agent build your game is the −17% condition. So during a chapter
-the agent explains, inspects, and diagnoses. Once your checks are green, the
-gloves come off.
-
-Enforcement is a config file and an honour system. We're telling you the study
-result instead of pretending the guardrail is airtight.
-
-## But you *should* delegate the repetition
+## Practice, but you *should* delegate the repetition
 
 The rule above isn't "don't use the agent." It's "don't let it do the part
 you haven't learned yet."
