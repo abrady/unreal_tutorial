@@ -1,10 +1,18 @@
 # Chapter 1 — The iteration loop, and the dummy
 
-**Goal:** a target dummy standing in an empty gym, turning slowly.
+**Goal:** a target dummy standing in the gym, turning slowly.
 
 The dummy is deliberately simple. This chapter is really about two things:
 the **compile loop**, which wastes more newcomer time than anything else, and
 the **component model**, which is how every Unreal actor is assembled.
+
+The class shell is already written for you — you're filling in three `TODO`s.
+
+**Time:** ~45 minutes.
+
+> New to Unreal's C++? Read [Before you start](../00-setup/README.md) first.
+> It covers UnrealBuildTool, what the macros do, and why the build works the
+> way it does. Ten minutes, and the rest stops feeling arbitrary.
 
 **Time:** ~45 minutes.
 
@@ -24,43 +32,40 @@ rotation twice to confirm it's actually turning.
 
 ## Try it first
 
-Write a C++ actor class called `ATargetDummy` that:
+Open `CombatGym/Source/CombatGym/TargetDummy.h` and `.cpp`. The class shell
+is already there — `UCLASS`, `GENERATED_BODY`, the `.generated.h` include.
+That's ceremony, and you don't need to practise it.
 
-1. Has a **cylinder body** as its root — `/Engine/BasicShapes/Cylinder`.
-2. Has a **sphere head** *attached to the body*, sitting on top of it.
-3. **Rotates slowly** around Z while the game runs, so you can practise
-   hitting a target that isn't standing still.
+What's left are three `TODO`s:
 
-Don't read ahead. You know C++ and you know what a game loop is — the only
-genuinely unfamiliar parts are Unreal's macros, where code is allowed to go,
-and how components hang together.
+1. A **cylinder body** as the root — `/Engine/BasicShapes/Cylinder`
+2. A **sphere head** *attached to the body*, sitting on top of it
+3. **Slow rotation** around Z while the game runs, so you're shooting at
+   something that isn't standing still
 
-**You may ask your agent** to explain concepts, find the right API, or decode
-a compiler error. **Don't ask it to write the class.** See
+Don't read ahead. You know C++ and you know what a game loop is — the
+unfamiliar parts are how components hang together and where Unreal lets you
+put things.
+
+**Ask your assistant** to explain concepts, find the right API, or decode a
+compiler error. **Don't ask it to write the class.** See
 [`AGENTS.md`](../../AGENTS.md) for why.
 
 ---
 
 ## What you need to know
 
-### Reflection macros
-
-`UCLASS()` above the class, `GENERATED_BODY()` as the first thing inside it,
-`UPROPERTY()` above members Unreal should know about. These feed a code
-generator — UnrealHeaderTool — that runs *before* the C++ compiler.
-
-`#include "TargetDummy.generated.h"` must be the **last** include in your
-header. Everything above it gets scanned. Get the order wrong and the error
-won't mention includes.
+[Before you start](../00-setup/README.md) covered the macros and the build
+loop. Two things specific to this chapter:
 
 ### Components: how actors are actually built
 
 This is the part worth slowing down for.
 
 An `AActor` is mostly an empty container. Behaviour and geometry come from
-**components** attached to it. Unreal's whole architecture is composition,
-not deep inheritance hierarchies — a Character isn't a subclass of "thing
-that moves," it's an actor that *has* a movement component.
+**components** attached to it. Unreal's architecture is composition, not deep
+inheritance — a Character isn't a subclass of "thing that moves," it's an
+actor that *has* a movement component.
 
 Three levels matter:
 
@@ -78,13 +83,12 @@ Body = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Body"));
 SetRootComponent(Body);
 
 Head = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Head"));
-Head->SetupAttachment(Body);              // in the constructor
+Head->SetupAttachment(Body);              // constructor-time attachment
 Head->SetRelativeLocation(FVector(0, 0, 100));
 ```
 
-Note `SetupAttachment` for constructor-time attachment, versus
-`AttachToComponent` at runtime. Using the wrong one for the wrong phase is a
-common early mistake.
+Note `SetupAttachment` for constructor-time versus `AttachToComponent` at
+runtime. Using the wrong one for the wrong phase is a common early mistake.
 
 Also note **`CreateDefaultSubobject` only works in the constructor.** That's
 not arbitrary, and Chapter 2 explains exactly why.
@@ -101,7 +105,7 @@ Useful APIs: `AActor::AddActorLocalRotation`, `FRotator`,
 
 ## Building
 
-Your files go in `Lab01_FirstRoom/Source/Lab01/`.
+Your files go in `CombatGym/Source/CombatGym/`.
 
 **Adding a new file, or changing a header, means a full rebuild with the
 editor closed.** Unreal Build Tool attempts a hot-reload build if the editor
@@ -109,8 +113,8 @@ is running and fails with a confusing message about hyphens.
 
 ```bash
 # from the engine root
-Engine/Build/BatchFiles/Mac/Build.sh Lab01Editor Mac Development \
-  -Project=<repo>/Lab01_FirstRoom/Lab01.uproject
+Engine/Build/BatchFiles/Mac/Build.sh CombatGymEditor Mac Development \
+  -Project=<repo>/CombatGym/CombatGym.uproject
 ```
 
 Once the class exists and you're only editing `.cpp` bodies, **Live Coding**

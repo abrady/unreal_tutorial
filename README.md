@@ -118,7 +118,7 @@ version.
 | `START_HERE.md` | Begin here |
 | `chapters/` | One README per chapter (**steps**) plus `CHECKS.md` (the rubric) |
 | `docs/slides/` | The deck. **Concepts.** |
-| `Lab01_FirstRoom/` | The Unreal project |
+| `CombatGym/` | The Unreal project |
 | `AGENTS.md` | Tutor-mode rules for your AI assistant |
 | `docs/MCP_NOTES.md` | How to drive the editor over MCP — for your assistant |
 | `docs/plans/` | Why the lab is shaped like this |

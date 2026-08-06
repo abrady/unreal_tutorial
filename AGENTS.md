@@ -113,7 +113,7 @@ usually the signal.
 **Before a chapter's checks pass**, you may **not**:
 
 - Write or dictate the chapter's solution, in whole or in part
-- Edit files under `Lab01_FirstRoom/Source/` for the current chapter
+- Edit files under `CombatGym/Source/` for the current chapter
 - Read, check out, or quote from a `chNN-solution` tag or branch
 - Paste a complete class, function body, or Blueprint graph that constitutes
   the answer

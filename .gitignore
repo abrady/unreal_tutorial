@@ -1,20 +1,15 @@
-grader/.venv/
-grader/.pytest_cache/
-__pycache__/
-*.pyc
-
 # Unreal
-Lab01_FirstRoom/Binaries/
-Lab01_FirstRoom/Intermediate/
-Lab01_FirstRoom/Saved/
-Lab01_FirstRoom/DerivedDataCache/
+CombatGym/Binaries/
+CombatGym/Intermediate/
+CombatGym/Saved/
+CombatGym/DerivedDataCache/
 
 # generated build counter
-Lab01_FirstRoom/Build/*/*.PackageVersionCounter
+CombatGym/Build/*/*.PackageVersionCounter
 
 # Ch7 animation assets (opt-in, copied from the engine template)
-Lab01_FirstRoom/Content/Lab01/Anims/
-Lab01_FirstRoom/Content/Lab01/Characters/
+CombatGym/Content/CombatGym/Anims/
+CombatGym/Content/CombatGym/Characters/
 
 # watchman
 .watchman-cookie-*

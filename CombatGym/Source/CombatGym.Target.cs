@@ -3,13 +3,13 @@
 using UnrealBuildTool;
 using System.Collections.Generic;
 
-public class Lab01EditorTarget : TargetRules
+public class CombatGymTarget : TargetRules
 {
-	public Lab01EditorTarget(TargetInfo Target) : base(Target)
+	public CombatGymTarget(TargetInfo Target) : base(Target)
 	{
-		Type = TargetType.Editor;
+		Type = TargetType.Game;
 		DefaultBuildSettings = BuildSettingsVersion.V7;
 		IncludeOrderVersion = EngineIncludeOrderVersion.Unreal5_8;
-		ExtraModuleNames.Add("Lab01");
+		ExtraModuleNames.Add("CombatGym");
 	}
 }

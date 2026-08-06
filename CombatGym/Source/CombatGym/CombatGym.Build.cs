@@ -1,8 +1,8 @@
 using UnrealBuildTool;
 
-public class Lab01 : ModuleRules
+public class CombatGym : ModuleRules
 {
-	public Lab01(ReadOnlyTargetRules Target) : base(Target)
+	public CombatGym(ReadOnlyTargetRules Target) : base(Target)
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput" });

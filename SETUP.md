@@ -35,12 +35,12 @@ git clone <this repo>
 cd unreal_tutorial
 ```
 
-Open `Lab01_FirstRoom/Lab01.uproject`. First open will build the game module —
+Open `CombatGym/CombatGym.uproject`. First open will build the game module —
 this is the slow part. Let it finish.
 
 ## 3. Enable the MCP plugins
 
-Already set in `Lab01.uproject`, so this should just work:
+Already set in `CombatGym.uproject`, so this should just work:
 
 | Plugin | Why |
 |---|---|
@@ -143,7 +143,7 @@ binary is the recommended path for the lab.
 
 **Editor seems to launch but the MCP server never comes up**
 Check for a modal dialog behind your other windows. The most common one is
-**"Missing Lab01 Modules — built with a different engine version. Would you
+**"Missing CombatGym Modules — built with a different engine version. Would you
 like to rebuild them now?"** It blocks startup, so from the outside this
 looks identical to a broken MCP server.
 

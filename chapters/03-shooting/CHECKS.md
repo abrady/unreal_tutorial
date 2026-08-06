@@ -12,7 +12,7 @@ tooling's edges is part of the lab.
 
 **1. The player is possessed.**
 
-`StartPIE`, then `find_actors` for `/Script/Lab01.LabCharacter`. At least one.
+`StartPIE`, then `find_actors` for `/Script/CombatGym.LabCharacter`. At least one.
 
 None means the GameMode's Default Pawn Class isn't pointing at it, or the
 level has no PlayerStart.

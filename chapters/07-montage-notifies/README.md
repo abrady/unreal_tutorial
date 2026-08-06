@@ -22,7 +22,7 @@ what we need in the third-person template:
 ```bash
 # from your engine root
 cp -r Templates/TP_ThirdPerson/Content/Variant_Combat/Anims \
-      <repo>/Lab01_FirstRoom/Content/Lab01/Anims
+      <repo>/CombatGym/Content/CombatGym/Anims
 ```
 
 That gives you `AM_ComboAttack` and `AM_ChargedAttack` — real montages with

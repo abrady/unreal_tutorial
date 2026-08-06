@@ -453,9 +453,9 @@ unreal_tutorial/
     05-ability-components/README.md
     06-powers/README.md            take-home
     07-montage-notifies/README.md  take-home
-  Lab01_FirstRoom/              the UE project
-    Lab01.uproject
-    Source/Lab01/
+  CombatGym/              the UE project
+    CombatGym.uproject
+    Source/CombatGym/
     Content/
     Config/                     MCP plugin + server settings live here
   chapters/NN-name/

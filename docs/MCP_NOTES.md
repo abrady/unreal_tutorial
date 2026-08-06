@@ -24,11 +24,11 @@ need something not listed below.
 `ATargetDummy` in C++ is `TargetDummy` to the reflection system:
 
 ```
-/Script/Lab01.TargetDummy      ✓
-/Script/Lab01.ATargetDummy     ✗  "is not valid Class"
+/Script/CombatGym.TargetDummy      ✓
+/Script/CombatGym.ATargetDummy     ✗  "is not valid Class"
 ```
 
-Same for `UDamageHistory` → `/Script/Lab01.DamageHistory`.
+Same for `UDamageHistory` → `/Script/CombatGym.DamageHistory`.
 
 ## You cannot spawn actors while PIE is running
 
@@ -50,7 +50,7 @@ Anything you spawn for a check should be removed afterwards
 Even the empty ones:
 
 ```json
-{"root": null, "name": "", "actor_type": {"refPath": "/Script/Lab01.TargetDummy"},
+{"root": null, "name": "", "actor_type": {"refPath": "/Script/CombatGym.TargetDummy"},
  "tag": "", "bounds": null, "collision_channels": []}
 ```
 
@@ -152,12 +152,12 @@ only handles `.cpp` bodies.
 
 ```bash
 # macOS
-<engine>/Engine/Build/BatchFiles/Mac/Build.sh Lab01Editor Mac Development \
-  -Project=<repo>/Lab01_FirstRoom/Lab01.uproject -WaitMutex
+<engine>/Engine/Build/BatchFiles/Mac/Build.sh CombatGymEditor Mac Development \
+  -Project=<repo>/CombatGym/CombatGym.uproject -WaitMutex
 
 # Windows
-<engine>\Engine\Build\BatchFiles\Build.bat Lab01Editor Win64 Development ^
-  -Project=<repo>\Lab01_FirstRoom\Lab01.uproject -WaitMutex
+<engine>\Engine\Build\BatchFiles\Build.bat CombatGymEditor Win64 Development ^
+  -Project=<repo>\CombatGym\CombatGym.uproject -WaitMutex
 ```
 
 If the build complains about hot reload or hyphens, the editor is still open.
@@ -165,12 +165,12 @@ If the build complains about hot reload or hyphens, the editor is still open.
 Relaunch with the MCP server:
 
 ```bash
-<engine>/Engine/Binaries/Mac/UnrealEditor <repo>/Lab01_FirstRoom/Lab01.uproject \
+<engine>/Engine/Binaries/Mac/UnrealEditor <repo>/CombatGym/CombatGym.uproject \
   -ModelContextProtocolStartServer
 ```
 
 Give it up to 3 minutes on a cold open. If it never comes up, look for a modal
-dialog behind other windows — **"Missing Lab01 Modules"** blocks startup and
+dialog behind other windows — **"Missing CombatGym Modules"** blocks startup and
 looks exactly like a hung editor.
 
 Your tools only exist while that editor is open. If they vanish mid-session,
