@@ -3,12 +3,13 @@
 Build a combat gym. Shoot a target dummy, watch damage numbers pop off it,
 then attach a component and watch the dummy shoot back.
 
-In C++, from an empty project, verified by an automated grader, debugged with
-an AI agent wired directly into the running editor.
+In C++, from an empty project, with an AI assistant wired directly into the
+running editor — checking your work against live state, and refusing to write
+it for you.
 
-> **Status: chapters 1–5 are playable.** All seven chapters are written, the
-> grader runs green against a live 5.8.1 editor, and reference solutions exist
-> for 1–5. Design rationale lives in
+> **Status: chapters 1–5 are playable.** All seven are written, verified
+> against a live 5.8.1 editor, with reference solutions for 1–5. Design
+> rationale lives in
 > [docs/plans](docs/plans/2026-08-04-unreal-mcp-tutorial-design.md).
 
 **You do not need a VR headset.** You need a PC or Mac that can run Unreal.
@@ -29,8 +30,8 @@ its own. Extra chapters are take-home and optional.
 
 **Your agent is inside the editor.** Unreal 5.8 ships Epic's
 `ModelContextProtocol` plugin. Enable a checkbox and your agent can start PIE,
-inspect live actors, and read real compiler errors — the same interface the
-grader uses. Ask it *"why is check 3 failing?"* and it can go look.
+inspect live actors, and read real compiler errors — Ask it *"why isn't this working?"* and it can go look, rather than guess
+from your source.
 
 You'll also add `UFUNCTION(meta = (AICallable))` to your own C++ and watch it
 appear as a tool the agent can call. The agent isn't something done to you —
@@ -85,7 +86,8 @@ Then, take-home and substantial (60–90 min each):
 **Chapter 2 is the one that matters.** Every C++ engineer gets burned by
 UObject lifetime exactly once, and it's the line between copying Unreal
 tutorials and understanding Unreal. You'll get burned on purpose, with a
-grader that tells you when you've actually fixed it.
+assistant that checks the running editor to tell you when you've actually
+fixed it.
 
 ## About the VR part
 
@@ -103,27 +105,22 @@ swap if you have one.
 
 ## Getting started
 
-1. Read [`SETUP.md`](SETUP.md) and do it **before** the session — the engine
-   install and first compile are long, and showing up unbuilt means showing up
-   unable to participate.
-2. Confirm you're ready:
-   ```console
-   $ cd grader && python3 check.py ch00
-   ```
-   Green is your ticket in. No pip install — the grader is standard library
-   only, and runs on whatever `python3` you already have.
-3. Start at [`chapters/01-iteration-loop`](chapters/01-iteration-loop/).
+See [`START_HERE.md`](START_HERE.md). It's three steps, and the third is
+saying "start lesson one" to your assistant.
+
+If you'd rather drive it yourself, [`SETUP.md`](SETUP.md) has the manual
+version.
 
 ## Repo map
 
 | Path | What |
 |---|---|
-| `SETUP.md` | Chapter 0 — gated pre-work |
-| `chapters/` | One README per chapter. **Steps.** |
+| `START_HERE.md` | Begin here |
+| `chapters/` | One README per chapter (**steps**) plus `CHECKS.md` (the rubric) |
 | `docs/slides/` | The deck. **Concepts.** |
 | `Lab01_FirstRoom/` | The Unreal project |
-| `grader/` | MCP client and check suites. `python3 check.py` |
-| `AGENTS.md` | Tutor-mode rules for your AI client |
+| `AGENTS.md` | Tutor-mode rules for your AI assistant |
+| `docs/MCP_NOTES.md` | How to drive the editor over MCP — for your assistant |
 | `docs/plans/` | Why the lab is shaped like this |
 
 Chapters 1–6 need **zero binary assets** — the gym is built from engine

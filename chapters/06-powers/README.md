@@ -12,9 +12,9 @@ behaviours cost three components and nothing else changes.
 
 ## What green looks like
 
-```console
-$ cd grader && python3 check.py ch06
-```
+Ask your assistant:
+
+> **check my work**
 
 ---
 

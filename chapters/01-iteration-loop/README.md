@@ -12,9 +12,9 @@ the **component model**, which is how every Unreal actor is assembled.
 
 ## What green looks like
 
-```console
-$ cd grader && python3 check.py ch01
-```
+Ask your assistant:
+
+> **check my work**
 
 The checks spawn your dummy into a running PIE session, verify it has a
 two-part component tree with the head attached to the body, and sample its
@@ -165,9 +165,9 @@ arriving early.
 
 ## Run the checks
 
-```bash
-cd grader && python3 check.py ch01
-```
+Ask your assistant:
+
+> **check my work**
 
 Green means you're done.
 

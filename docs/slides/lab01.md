@@ -47,7 +47,7 @@ Both Unity attempts shipped. Both were **a single lab**.
 Every chapter ships **failing checks**. You're done when they're green.
 
 ```console
-$ python3 grader/check.py ch04
+$ ask your assistant to check your work
 
 ch04_damage  Hits, damage, and floating numbers.
   ✗ dummy lost health
@@ -56,7 +56,7 @@ ch04_damage  Hits, damage, and floating numbers.
       DamageHistory is empty.
 ```
 
-The grader doesn't read your source. It boots your project, starts PIE,
+Your assistant doesn't read your source. It starts PIE,
 puts a projectile in front of a dummy, and asks the **live editor** what
 happened.
 
@@ -115,8 +115,8 @@ HTTP + JSON-RPC on `localhost:8000/mcp`.
 It can start PIE, capture a viewport annotated with every actor's world
 position, and read real compiler errors.
 
-**Same interface the grader uses.** So "why is check 3 failing?" is a
-question it can actually go and answer.
+So "why isn't this working?" is a question it can go and **answer**,
+not guess at.
 
 ---
 
@@ -400,4 +400,4 @@ Take-home, self-serve, optional:
 
 # Go build the gym
 
-<span class="small">`python3 grader/check.py ch01`</span>
+<span class="small">ask your assistant to check your work</span>

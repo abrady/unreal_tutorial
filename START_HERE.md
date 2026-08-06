@@ -40,7 +40,7 @@ popping off it, and eventually a dummy that shoots back.
 the lab remembers where you are — come back whenever, and run:
 
 ```bash
-python3 grader/check.py
+ask your assistant to check your work
 ```
 
 That prints every chapter's state, so picking up cold three days later takes

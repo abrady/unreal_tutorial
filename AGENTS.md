@@ -12,34 +12,70 @@ of this file.
 ## When they say "start lesson one" (or anything like it)
 
 They may not have a working environment yet. Don't start teaching until they
-do. Run this and read what it says:
+do. Work through this yourself — don't hand them a checklist.
 
-```bash
-python3 grader/setup.py
+**1. Find their engine.** Needs Unreal **5.8+** with
+`Engine/Plugins/Experimental/ModelContextProtocol` present. Look in:
+
+```
+~/UE_5.8                                      C:\Program Files\Epic Games\UE_5.8
+/Users/Shared/Epic Games/UE_5.8               ~/ue5*  ~/UnrealEngine*
 ```
 
-It finds their Unreal install, builds the project, launches the editor with
-its MCP server, verifies the whole chain, and wires your client config. It's
-safe to re-run and it explains its own failures.
+The Epic Launcher also records installs in `LauncherInstalled.dat` — on macOS
+at `~/Library/Application Support/Epic/UnrealEngineLauncher/`. Confirm the
+version from `Engine/Build/Build.version`. If you can't find one, ask; don't
+guess.
 
-**You do not need MCP tools to do any of this.** `setup.py` and `check.py`
-are plain HTTP clients you run over bash. That matters, because your MCP tools
-won't exist until the config is written and the client restarts.
+**2. Close any running editor**, or the build fails with a confusing message
+about hyphens.
 
-Then:
+**3. Build the project.** See [`docs/MCP_NOTES.md`](docs/MCP_NOTES.md) for the
+exact command per platform. First build can take minutes.
 
-1. **If it asks them to restart the client** — tell them plainly, and stop.
-   You can't do it for them. When they come back, confirm your Unreal tools
-   are present before continuing.
-2. **If setup failed** — work the problem. The message says what to do. Common
-   ones: no engine found (ask where it is, or have them install it), a modal
-   dialog blocking editor startup, or a stale build.
-3. **Once it's green** — open `chapters/01-iteration-loop/README.md`, give them
-   the task in your own words, and let them write it.
+**4. Launch with the MCP server** and wait for port 8000. Up to 3 minutes
+cold. If it doesn't come up, check for a modal dialog behind their windows.
 
-**Resuming later.** If they come back mid-lab, run `python3 grader/check.py`
-with no arguments. It prints every chapter's state, so you can tell them
-exactly where they left off. Do that instead of asking them.
+**5. Wire their client.** Add to `~/.claude.json` (back it up first):
+
+```json
+{ "mcpServers": { "unreal": { "type": "http", "url": "http://localhost:8000/mcp" } } }
+```
+
+**6. Tell them to restart their client.** You cannot do this for them, and
+your Unreal tools won't exist until they do. Say so plainly and stop.
+
+**7. When they come back**, confirm your Unreal tools are present, then verify
+the environment against
+[`chapters/00-setup/CHECKS.md`](chapters/00-setup/CHECKS.md) before teaching.
+
+Then open `chapters/01-iteration-loop/README.md`, give them the task in your
+own words, and let them write it.
+
+**Resuming later.** If they come back mid-lab, work out where they are by
+running the CHECKS for each chapter until one fails — don't ask them. Tell
+them where they left off and carry on.
+
+---
+
+## Checking their work
+
+Each chapter has a `CHECKS.md` next to its README. Those are the completion
+criteria, and they're written to be verified with your Unreal tools against
+the running editor.
+
+**Actually run them.** Don't read their code and form an opinion — spawn the
+actor, start PIE, read the values. The whole point is that the answer comes
+from the engine rather than from either of you.
+
+Be specific about what failed and why. "Your dummy isn't rotating" is worth
+little; "yaw was 0.0 and is still 0.0 after a second, which usually means
+`bCanEverTick` was never set" is worth a lot.
+
+Read [`docs/MCP_NOTES.md`](docs/MCP_NOTES.md) before your first check. It has
+the traps — class paths drop the `A`/`U` prefix, you can't spawn during PIE,
+`set_properties` wants a JSON string — each of which will otherwise cost you
+a confusing ten minutes.
 
 ---
 

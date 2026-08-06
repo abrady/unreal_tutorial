@@ -126,8 +126,8 @@ What was confirmed by reading the source:
 1. **Setup friction collapses.** No plugin clone, no plugin build, no
    `Plugins/` directory. Enable a checkbox and set two ini values. Chapter 0
    was the single biggest threat to the half day; this removes most of it.
-2. **It survives engine bumps.** Epic maintains it. The grader will still be
-   brittle, but it won't rot the way a third-party plugin does.
+2. **It survives engine bumps.** Epic maintains it, so it won't rot the way a
+   third-party plugin would.
 3. **It resolves the org question.** First-party is the neutral choice — no
    consolidation risk against VR Integrations' UnrealMCP, and no dependency on
    a personal GitHub repo.
@@ -147,8 +147,8 @@ available as an add-on. It is not a half-day dependency.
 
 `bEnableToolSearch` defaults to `true`, so tools are **not** natively
 registered — they're discovered via `list_toolsets` / `describe_toolset` and
-invoked through `call_tool`. The grader must either set it to `false` or
-dispatch through `call_tool`. Pin this in `SETUP.md`; a mismatch here looks
+invoked through `call_tool`. Either set it to `false` or dispatch through
+`call_tool`. Pin this in `SETUP.md`; a mismatch here looks
 like "the tool doesn't exist."
 
 ### Teaching hook worth exploiting
@@ -217,67 +217,73 @@ Supporting literature, all pointing the same way:
 
 ---
 
-## Core idea: the lab is a test suite
+## Core idea: every chapter has explicit, checkable criteria
 
-Each chapter ships **failing automated checks**. The chapter is done when they
-go green.
+Each chapter ships a `CHECKS.md` next to its README — a short rubric the
+learner's assistant verifies against the running editor with its own MCP
+tools.
 
-The grader is a plain HTTP client speaking MCP JSON-RPC to
-`localhost:8000/mcp` — the same protocol the AI client uses, with no AI in the
-loop. **Standard library only**, so Chapter 0 has no install step: `check.py`
-plus a socket client is the whole thing.
+```markdown
+**4. It rotates.**
 
-It deliberately does *not* use pytest. The failure messages are the teaching,
-and they read better as tutor output than as assertion tracebacks:
+    get_actor_transform → note rotation.yaw
+    wait ~1 second
+    get_actor_transform → yaw must have changed by ≥5°
 
-```console
-$ python3 grader/check.py ch01
-  ✗ it rotates
-      The dummy isn't turning — yaw was 0.0 and is still 0.0 after 1s.
-      Two usual causes:
-        • PrimaryActorTick.bCanEverTick wasn't set in the constructor
-        • Tick never applies a rotation
+Two usual causes when it fails:
+  • PrimaryActorTick.bCanEverTick was never set in the constructor
+  • Tick doesn't actually apply a rotation
 ```
 
-A check looks like:
+The criteria are specific and numeric, so "looks good to me" isn't available
+— the assistant has to read a yaw value twice and compare them. And the
+verdict comes from the engine rather than from either party's opinion.
 
-```
-system_control  start_pie
-control_actor   teleport  <PlayerPawn> -> PressurePlate
-inspect         actor     BP_Door  -> assert Rotation.Yaw ~= 90
-system_control  stop_pie
-```
+Each rubric doubles as documentation of the MCP behaviours that chapter needs,
+so the assistant doesn't rediscover them live. The full set is in
+[`docs/MCP_NOTES.md`](../MCP_NOTES.md).
 
-Why this works:
+### Why not a program that grades
 
-- **Unassisted retrieval practice** with objective feedback, no instructor.
-- **Bounded productive failure** — you always know how close you are, so
-  struggle stays productive instead of becoming despair.
-- The grader and the learner's agent hit the *same* interface, so
-  "why is check 3 failing?" is answerable from live PIE state, not guesswork.
-- It doubles as **Kirkpatrick Level 2 (learning) telemetry** — per-chapter
-  pass/fail data that no internal engineering training program currently
-  produces. Internal measurement today is Bootcamp "would you recommend"
-  smile-sheets.
+The first version of this was 1,750 lines of Python: an MCP client, a helper
+layer, and six suites of assertions. It worked — 21 checks green against a
+live 5.8.1 editor. It was deleted, for two reasons.
 
-It is also, incidentally, a harness that drives a real UE editor through
-scripted scenarios and asserts on live state — i.e. a partner-repro tool
-wearing a tutorial costume. That reusability is part of the pitch.
+**It required Python.** Windows doesn't ship `python3`, and Unreal work is
+Windows-heavy, so the grader would have added an install step on the platform
+most of the audience uses. For a lab whose entire on-ramp is "install Unreal,
+say start lesson one," that's a bad trade.
 
-### Why the agent can't be the grader
+**It was the most fragile thing in the repo.** Getting it working took hours
+of fixing schema mismatches, PIE-ordering constraints, JSON double-parsing and
+timing races. Every one of those is a bug a learner could hit alone on a
+Thursday night. A grader that breaks is worse than no grader, and this one had
+more moving parts than the lab it graded.
 
-A reasonable question: the checks call the same MCP tools the agent has, so
-why not just ask the agent whether the chapter is done?
+**What we gave up:** machine-enforced objectivity. An agreeable assistant can
+be lenient in a way `assert` can't. That's a real loss, and the mitigation is
+only partial — the criteria are written down and numeric, so leniency has to
+be deliberate rather than accidental.
 
-Because the checkpoint's whole job is to be **unassisted and objective**, and
-an agent-judged checkpoint is neither. It's definitionally the −17% condition
-from Bastani; LLMs are agreeable and will find a way to say yes; and "close
-enough?" works on a model in a way it doesn't on `assert health == 250`.
+It's a smaller loss than it first appears, though. The original argument for
+an independent grader assumed a facilitated session with an *unassisted*
+checkpoint. In the delivery model this actually has — mostly self-guided,
+days later, with the assistant as the learner's only companion — there was
+never an unassisted moment to protect.
 
-In-engine automation tests were the other candidate and don't work either:
-they compile as part of the learner's module, so a test asserting "does
-`ATargetDummy` exist" can't compile when the answer is no. The grader has to
-sit outside the thing it grades.
+**Also considered:** Unreal's own automation tests. They can't work here.
+They compile as part of the learner's module, so a test asserting "does
+`ATargetDummy` exist" won't compile when the answer is no.
+
+### What this costs the measurement story
+
+The Python grader would have produced per-chapter pass/fail and time-to-green
+automatically — Kirkpatrick Level 2 data that no internal engineering program
+currently has. Without it, that has to come from the assistant reporting
+progress, or from a lightweight self-report at the end.
+
+That's a genuine downgrade in rigour and it should be stated plainly rather
+than quietly dropped from the pitch.
 
 ---
 
@@ -311,7 +317,7 @@ which makes the claim more honest than it was under the previous design.
 **This must be done before the session starts or the attendee is dead.**
 
 Unreal install is enormous and the first compile is long. Setup gets its own
-verification script; a green `python3 grader/check.py ch00` is the
+verification script; a green ask your assistant to check your work is the
 ticket to the session.
 
 Covers: engine acquisition, repo clone, first full build, enabling the
@@ -452,11 +458,10 @@ unreal_tutorial/
     Source/Lab01/
     Content/
     Config/                     MCP plugin + server settings live here
-  grader/
-    mcp_client.py               thin JSON-RPC/HTTP MCP client
-    conftest.py
-    checks/
-      ch00_setup.py … ch04_interaction.py
+  chapters/NN-name/
+    README.md                   the chapter, for the learner
+    CHECKS.md                   the rubric, for the assistant
+  docs/MCP_NOTES.md             how to drive the editor, for the assistant
 ```
 
 **Chapter checkpoints as git tags:** `ch01-start`, `ch01-solution`, …
@@ -516,7 +521,7 @@ The README carries the steps. Never both — duplication guarantees drift.
 | 2 | ~~Does 5.8 ship a first-party MCP?~~ | — | **Resolved — yes.** Verified in `~/ue58-fresh`. See the MCP section. |
 | 3 | ~~UnrealMCP overlap~~ | — | **Resolved.** First-party is the neutral choice; no consolidation exposure. |
 | 3a | **First-party MCP is Experimental** (`IsExperimentalVersion: true`, `NoRedist`). API churn is likely between engine versions. | Grader and chapter text may break on upgrade | Accepted. Pin the engine version in `SETUP.md`. `NoRedist` is fine — internal only. |
-| 3b | **`bEnableToolSearch` / `bAutoStartServer` defaults** are both wrong for our use. | Silent "tool not found" confusion | Pin both in `SETUP.md` and assert them in `ch00_setup.py`. |
+| 3b | **`bEnableToolSearch` / `bAutoStartServer` defaults** are both wrong for our use. | Silent "tool not found" confusion | Pin both in `SETUP.md` and check them in `chapters/00-setup/CHECKS.md`. |
 | 3c | **The MCP cannot create or save-as a level.** Verified against 5.8.1: `save_assets` can't see a temp map, `load_level` needs an existing asset, and `create_level_instance` references one. There is no `new_level`. | Level authoring is a manual editor step | Accepted. `Lvl_FirstRoom.umap` is committed to the repo so nobody has to recreate it. Worth surfacing to learners as a real edge of the tool. |
 | 3d | **Property writes need a saved level.** `set_properties` returns `False` for actors in an unsaved temp map. | Ch 2's per-instance override check needs a real level | Resolved by 3c — the committed level carries a dummy with `MaxHealth` pre-overridden. |
 | 4 | **Why did this fail three times?** | Highest-value de-risking conversation available | Find the XR Game Engine Fundamentals owners and ask. |
@@ -530,13 +535,16 @@ The README carries the steps. Never both — duplication guarantees drift.
 
 ## Measurement
 
-Since the auto-grader produces per-chapter completion data, commit to
-measuring properly — no internal engineering program currently does.
+No internal engineering program currently measures beyond a smile sheet, and
+we should still try — but note the caveat under "Core idea": without an
+automated grader, per-chapter data now depends on the assistant reporting it
+rather than being produced as a side effect.
 
 - **Level 1 (reaction):** post-lab survey. Copy the Bootcamp Live Results
   format.
-- **Level 2 (learning):** per-chapter checkpoint pass rate and time-to-green,
-  straight from the grader. This is the differentiator.
+- **Level 2 (learning):** per-chapter completion, reported by the assistant
+  as learners work through the checks. Weaker than the automated version
+  would have been — see the note above — but still more than a smile sheet.
 - **Level 3 (behavior):** the real test. At 4–6 weeks, can they orient in an
   unfamiliar UE project? Kirkpatrick guidance warns behavior change requires
   manager reinforcement and organizational conditions — so this needs

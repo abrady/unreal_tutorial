@@ -12,9 +12,9 @@ boilerplate teaches almost nothing and eats the clock.
 
 ## What green looks like
 
-```console
-$ cd grader && python3 check.py ch03
-```
+Ask your assistant:
+
+> **check my work**
 
 The checks start PIE, confirm a pawn got possessed, inject a fire input, and
 assert a projectile actually exists in the world.
@@ -200,9 +200,9 @@ go, not at the end.
 
 ## Run the checks
 
-```bash
-cd grader && python3 check.py ch03
-```
+Ask your assistant:
+
+> **check my work**
 
 Then [Chapter 4](../04-damage/), where the dummy starts to notice.
 

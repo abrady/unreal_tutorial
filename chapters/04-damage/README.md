@@ -11,9 +11,9 @@ demo and starts being a game.
 
 ## What green looks like
 
-```console
-$ cd grader && python3 check.py ch04
-```
+Ask your assistant:
+
+> **check my work**
 
 The checks fire a projectile at a dummy and assert its health dropped and the
 damage history recorded the hit.
@@ -162,9 +162,9 @@ in whatever reads `Health`? There's a real design argument either way.
 
 ## Run the checks
 
-```bash
-cd grader && python3 check.py ch04
-```
+Ask your assistant:
+
+> **check my work**
 
 Then [Chapter 5](../05-ability-components/), where the dummy shoots back.
 

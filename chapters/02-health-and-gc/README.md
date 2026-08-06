@@ -8,8 +8,9 @@ knowledge you'd pick up eventually. This is the line between copying Unreal
 tutorials and understanding Unreal, and every C++ engineer gets burned by it
 exactly once.
 
-Today you get burned on purpose, with a grader telling you when you've
-actually fixed it.
+Today you get burned on purpose, and your assistant will tell you — from
+the running editor, not from reading your code — when you've actually fixed
+it.
 
 **Time:** ~45 minutes.
 
@@ -17,9 +18,9 @@ actually fixed it.
 
 ## What green looks like
 
-```console
-$ cd grader && python3 check.py ch02
-```
+Ask your assistant:
+
+> **check my work**
 
 Four checks. Two about *when* your code runs, two about *whether your objects
 survive*.
@@ -121,8 +122,8 @@ It builds the CDO's component template, which instances are copied from.
 
 Default answer: `BeginPlay`.
 
-To prove it to yourself and the grader, have the dummy record what `MaxHealth`
-looked like at construction time versus at `BeginPlay`.
+To prove it to yourself, have the dummy record what `MaxHealth` looked like at
+construction time versus at `BeginPlay`.
 
 ---
 
@@ -225,9 +226,9 @@ fires when a collection finishes. Remember to unbind it in `EndPlay`.
 
 ## Run the checks
 
-```bash
-cd grader && python3 check.py ch02
-```
+Ask your assistant:
+
+> **check my work**
 
 Then [Chapter 3](../03-shooting/), where you get to shoot at it.
 

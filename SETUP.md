@@ -65,7 +65,7 @@ ServerUrlPath=/mcp
 Both non-default values matter. The engine defaults are
 `bAutoStartServer=False` (server never starts) and `bEnableToolSearch=True`
 (only `list_toolsets` / `describe_toolset` / `call_tool` get registered).
-The grader copes with either tool-search setting.
+Your assistant copes with either tool-search setting.
 
 > **If the server doesn't come up**, the ini isn't always picked up. The
 > reliable override is a command-line flag:
@@ -90,43 +90,32 @@ Restart the client after the editor is running so it picks up the tool list.
 > Tools only exist while the editor is open. If your agent says it has no
 > Unreal tools, the editor is closed or the server didn't start.
 
-## 6. The grader needs nothing
+## 6. Confirm you're ready
 
-Standard library only. No venv, no `pip install`, no pytest — whatever
-`python3` you already have will run it.
+With the editor open, ask your assistant:
 
-## 7. Confirm you're ready
+> **check my setup**
 
-With the editor open:
+It'll verify the handshake, the tool list, that PIE starts and stops on
+command, and that it can inspect the running world. Those five things are
+what everything else depends on — see
+[`chapters/00-setup/CHECKS.md`](chapters/00-setup/CHECKS.md) for exactly what
+it's looking at.
 
-```bash
-cd grader
-python3 check.py ch00
-```
-
-Five passing checks is your ticket in. They verify the handshake, the tool
-list, the toolsets the lab needs, that PIE starts and stops on command, and
-that live viewport inspection reports actors.
-
-If the run stops with **"Can't reach Unreal"**, the grader couldn't find the
-editor — go back to step 4.
-
-Run `python3 check.py` with no arguments for every chapter, or
-`python3 check.py ch01 ch02` for a subset.
+If your assistant says it has no Unreal tools, the editor is closed or the
+client wasn't restarted after step 5.
 
 ---
 
 ## Troubleshooting
 
-**`Could not reach the MCP server at http://localhost:8000/mcp`**
-Editor closed, or `bAutoStartServer` is still `False`. Check
-Edit → Project Settings → Model Context Protocol.
+**Your assistant has no Unreal tools**
+Editor closed, `bAutoStartServer` still `False`, or the client wasn't
+restarted. Check Edit → Project Settings → Model Context Protocol, then
+restart the client.
 
 **Port 8000 already in use**
-Change `ServerPortNumber`, then point the grader at it:
-```bash
-UNREAL_MCP_URL=http://localhost:8123/mcp python3 check.py ch00
-```
+Change `ServerPortNumber`, and use the same port in your client config.
 
 **`Tool 'X' is not registered and tool-search is off`**
 A toolset plugin isn't enabled. Check step 3 and restart the editor.

@@ -14,9 +14,9 @@ partner project you open.
 
 ## What green looks like
 
-```console
-$ cd grader && python3 check.py ch05
-```
+Ask your assistant:
+
+> **check my work**
 
 The checks start PIE, wait past the cooldown, and assert a dummy-spawned
 projectile exists and the player took damage.
@@ -176,9 +176,9 @@ avoiding.
 
 ## Run the checks
 
-```bash
-cd grader && python3 check.py ch05
-```
+Ask your assistant:
+
+> **check my work**
 
 ---
 
