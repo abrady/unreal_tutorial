@@ -30,7 +30,7 @@ guess.
 **2. Close any running editor**, or the build fails with a confusing message
 about hyphens.
 
-**3. Build the project.** See [`docs/MCP_NOTES.md`](docs/MCP_NOTES.md) for the
+**3. Build the project.** See [`MCP_NOTES.md`](MCP_NOTES.md) for the
 exact command per platform. First build can take minutes.
 
 **4. Launch with the MCP server** and wait for port 8000. Up to 3 minutes
@@ -72,7 +72,7 @@ Be specific about what failed and why. "Your dummy isn't rotating" is worth
 little; "yaw was 0.0 and is still 0.0 after a second, which usually means
 `bCanEverTick` was never set" is worth a lot.
 
-Read [`docs/MCP_NOTES.md`](docs/MCP_NOTES.md) before your first check. It has
+Read [`MCP_NOTES.md`](MCP_NOTES.md) before your first check. It has
 the traps — class paths drop the `A`/`U` prefix, you can't spawn during PIE,
 `set_properties` wants a JSON string — each of which will otherwise cost you
 a confusing ten minutes.

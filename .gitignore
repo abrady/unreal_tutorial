@@ -13,3 +13,6 @@ CombatGym/Content/CombatGym/Characters/
 
 # watchman
 .watchman-cookie-*
+
+# Internal: pitch, design rationale, deck. Kept locally, not shared.
+docs/

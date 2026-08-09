@@ -8,9 +8,7 @@ running editor — checking your work against live state, and refusing to write
 it for you.
 
 > **Status: chapters 1–5 are playable.** All seven are written, verified
-> against a live 5.8.1 editor, with reference solutions for 1–5. Design
-> rationale lives in
-> [docs/plans](docs/plans/2026-08-04-unreal-mcp-tutorial-design.md).
+> against a live 5.8.1 editor, with reference solutions for 1–5.
 
 **You do not need a VR headset.** You need a PC or Mac that can run Unreal.
 
@@ -18,13 +16,21 @@ it for you.
 
 ## Why this exists
 
-DRE engineers support partners shipping real Unreal titles. That job needs UE
-fluency, and there is currently no internal Unreal course — the Eng Bootcamp
-Immersive 3D path lists exactly one hands-on engine course, and it's Unity.
+DRE engineers support partners shipping real Unreal titles, and that job needs
+UE fluency.
 
-This has been proposed three times since 2022 and never shipped, each time as
-a full curriculum. So this is deliberately **one lab**, complete and useful on
-its own. Extra chapters are take-home and optional.
+The people who need it are not beginners — they know C++, callbacks and
+composition cold. They're slow in Unreal because Unreal has about six idioms
+that no tutorial names out loud, and most public material teaches around them
+rather than through them. Reflection and the build loop. The Class Default
+Object. Garbage collection. The gameplay framework. The collision matrix.
+Composition over inheritance.
+
+Each chapter here is one of those, taught as a consequence you hit on purpose
+rather than a fact you're told.
+
+It's deliberately **one lab**, complete and useful on its own. Extra chapters
+are take-home and optional.
 
 ## What makes it different
 
@@ -117,11 +123,9 @@ version.
 |---|---|
 | `START_HERE.md` | Begin here |
 | `chapters/` | One README per chapter (**steps**) plus `CHECKS.md` (the rubric) |
-| `docs/slides/` | The deck. **Concepts.** |
 | `CombatGym/` | The Unreal project |
 | `AGENTS.md` | Tutor-mode rules for your AI assistant |
-| `docs/MCP_NOTES.md` | How to drive the editor over MCP — for your assistant |
-| `docs/plans/` | Why the lab is shaped like this |
+| `MCP_NOTES.md` | How to drive the editor over MCP — for your assistant |
 
 Chapters 1–6 need **zero binary assets** — the gym is built from engine
 primitives. Chapter 7 pulls animation content from the engine template, and
