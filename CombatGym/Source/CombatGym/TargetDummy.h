@@ -96,13 +96,10 @@ public:
 	float DegreesPerSecond = 30.f;
 
 protected:
-	// TODO (Chapter 1): declare two UStaticMeshComponent members here - a
-	// Body and a Head - like this:
-	//
-	//     UPROPERTY(VisibleAnywhere, Category = "Components")
-	//     TObjectPtr<UStaticMeshComponent> Body;
-	//
-	// TObjectPtr<T> is the modern spelling of T* for UPROPERTY members. In a
-	// packaged build it compiles down to a raw pointer; in the editor it adds
-	// access tracking. Use it for reflected members and don't think about it.
+	// Dry-run (Chapter 1 solution): the two-part component tree.
+	UPROPERTY(VisibleAnywhere, Category = "Components")
+	TObjectPtr<UStaticMeshComponent> Body;
+
+	UPROPERTY(VisibleAnywhere, Category = "Components")
+	TObjectPtr<UStaticMeshComponent> Head;
 };
