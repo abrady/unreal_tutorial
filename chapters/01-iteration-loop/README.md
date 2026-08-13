@@ -14,8 +14,6 @@ The class shell is already written for you — you're filling in three `TODO`s.
 > It covers UnrealBuildTool, what the macros do, and why the build works the
 > way it does. Ten minutes, and the rest stops feeling arbitrary.
 
-**Time:** ~45 minutes.
-
 ---
 
 ## What green looks like

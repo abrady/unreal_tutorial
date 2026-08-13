@@ -45,6 +45,15 @@ The editor world is the template PIE duplicates from. So the order is always:
 Anything you spawn for a check should be removed afterwards
 (`remove_from_scene`), or you'll silently pollute the learner's level.
 
+## `add_to_scene_from_class` ignores the `name` you pass
+
+The `name` argument is not honoured — actors come back auto-named
+(`TargetDummy_0`, `TargetDummy_1`, ...) regardless of what you asked for. The
+call's return value carries the real `refPath`, so capture that and clean up
+with it — or re-find by class with `find_actors`. Trying to
+`remove_from_scene` by the name you *intended* matches nothing and leaves the
+probe behind.
+
 ## `find_actors` wants every parameter
 
 Even the empty ones:
