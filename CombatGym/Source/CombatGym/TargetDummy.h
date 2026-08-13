@@ -26,6 +26,7 @@
 // header compile times down, which matters a lot in a codebase this size.
 // The .cpp includes the real header.
 class UStaticMeshComponent;
+class UDamageHistory;
 
 /**
  * A target dummy for the gym. You'll flesh this out in Chapter 1.
@@ -76,6 +77,10 @@ public:
 	// or mismatched overrides, so get the signature right.
 	virtual void Tick(float DeltaSeconds) override;
 
+	// Chapter 2: per-instance setup happens here, not the constructor.
+	virtual void BeginPlay() override;
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+
 	// UPROPERTY() tells the reflection system to track this member. It is not
 	// decoration - it buys four separate things:
 	//
@@ -95,11 +100,44 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Dummy")
 	float DegreesPerSecond = 30.f;
 
+	// Chapter 2: per-instance editable. Overriding this in the level is the
+	// CDO lesson - it lands AFTER the constructor, so Health is set in
+	// BeginPlay rather than the constructor.
+	UPROPERTY(EditAnywhere, Category = "Combat")
+	float MaxHealth = 100.f;
+
+	UPROPERTY(VisibleAnywhere, Category = "Combat")
+	float Health = 0.f;
+
+	// Chapter 2: did a collection actually happen? Without this, survival
+	// means nothing.
+	UPROPERTY(VisibleAnywhere, Category = "Lifecycle")
+	bool bCollectionRan = false;
+
+	// Chapter 2: did the damage history outlive the collection?
+	UPROPERTY(VisibleAnywhere, Category = "Lifecycle")
+	bool bHistorySurvived = false;
+
 protected:
+	// Chapter 2: runs after a garbage collection pass so we can observe what
+	// survived it.
+	void HandlePostGarbageCollect();
 	// Dry-run (Chapter 1 solution): the two-part component tree.
 	UPROPERTY(VisibleAnywhere, Category = "Components")
 	TObjectPtr<UStaticMeshComponent> Body;
 
 	UPROPERTY(VisibleAnywhere, Category = "Components")
 	TObjectPtr<UStaticMeshComponent> Head;
+
+	// Chapter 2: UPROPERTY puts this in the reflection graph, so the collector
+	// can see it and won't free it out from under us.
+	UPROPERTY()
+	TObjectPtr<UDamageHistory> History;
+
+private:
+	// A weak pointer never keeps anything alive, so it reports honestly on
+	// whether the History above actually survived.
+	TWeakObjectPtr<UDamageHistory> Observer;
+
+	FDelegateHandle PostGCHandle;
 };
