@@ -23,7 +23,20 @@ class AProjectile : public AActor
 public:
 	AProjectile();
 
+	/** How much damage this deals on impact. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat")
+	float Damage = 25.f;
+
 protected:
+	// Chapter 4: the hit event handler.
+	UFUNCTION()
+	void OnHit(
+		UPrimitiveComponent* HitComponent,
+		AActor* OtherActor,
+		UPrimitiveComponent* OtherComponent,
+		FVector NormalImpulse,
+		const FHitResult& Hit);
+
 	/** Root, and the thing that actually collides. */
 	UPROPERTY(VisibleAnywhere, Category = "Components")
 	TObjectPtr<USphereComponent> Collision;

@@ -4,6 +4,7 @@
 
 #include "DamageHistory.h"
 #include "Components/StaticMeshComponent.h"
+#include "DrawDebugHelpers.h"
 #include "Engine/Engine.h"
 #include "Engine/StaticMesh.h"
 #include "UObject/ConstructorHelpers.h"
@@ -79,4 +80,37 @@ void ATargetDummy::HandlePostGarbageCollect()
 {
 	bCollectionRan = true;
 	bHistorySurvived = Observer.IsValid();
+}
+
+float ATargetDummy::TakeDamage(
+	float Damage,
+	const FDamageEvent& DamageEvent,
+	AController* EventInstigator,
+	AActor* DamageCauser)
+{
+	// Super applies engine-side modifiers. Skipping it means your damage
+	// silently ignores anything the engine wants to say about it.
+	const float Applied =
+		Super::TakeDamage(Damage, DamageEvent, EventInstigator, DamageCauser);
+
+	Health = FMath::Max(0.f, Health - Applied);
+
+	if (History)
+	{
+		History->RecordHit(Applied);
+		DamageTaken = History->TotalDamage();
+		HitCount = History->HitCount();
+	}
+
+	// Debug visualisation isn't a toy - seeing what a combat system is doing
+	// is most of what makes it tunable.
+	DrawDebugString(
+		GetWorld(),
+		GetActorLocation() + FVector(0.f, 0.f, 160.f),
+		FString::Printf(TEXT("-%.0f"), Applied),
+		nullptr,
+		Health > 0.f ? FColor::Yellow : FColor::Red,
+		DamageNumberDuration);
+
+	return Applied;
 }

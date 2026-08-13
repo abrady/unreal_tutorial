@@ -81,6 +81,13 @@ public:
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
+	// Chapter 4: the damage entry point. ApplyDamage routes here.
+	virtual float TakeDamage(
+		float Damage,
+		const FDamageEvent& DamageEvent,
+		AController* EventInstigator,
+		AActor* DamageCauser) override;
+
 	// UPROPERTY() tells the reflection system to track this member. It is not
 	// decoration - it buys four separate things:
 	//
@@ -108,6 +115,17 @@ public:
 
 	UPROPERTY(VisibleAnywhere, Category = "Combat")
 	float Health = 0.f;
+
+	// Chapter 4: how long damage numbers linger, and running totals mirrored
+	// from History so they're readable via reflection.
+	UPROPERTY(EditAnywhere, Category = "Combat")
+	float DamageNumberDuration = 1.5f;
+
+	UPROPERTY(VisibleAnywhere, Category = "Combat")
+	float DamageTaken = 0.f;
+
+	UPROPERTY(VisibleAnywhere, Category = "Combat")
+	int32 HitCount = 0;
 
 	// Chapter 2: did a collection actually happen? Without this, survival
 	// means nothing.

@@ -3,7 +3,9 @@
 #include "Components/SphereComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Engine/StaticMesh.h"
+#include "GameFramework/DamageType.h"
 #include "GameFramework/ProjectileMovementComponent.h"
+#include "Kismet/GameplayStatics.h"
 #include "UObject/ConstructorHelpers.h"
 
 AProjectile::AProjectile()
@@ -13,6 +15,8 @@ AProjectile::AProjectile()
 	Collision = CreateDefaultSubobject<USphereComponent>(TEXT("Collision"));
 	Collision->InitSphereRadius(12.f);
 	Collision->SetCollisionProfileName(TEXT("BlockAllDynamic"));
+	Collision->SetNotifyRigidBodyCollision(true);   // "Simulation Generates Hit Events"
+	Collision->OnComponentHit.AddDynamic(this, &AProjectile::OnHit);
 	SetRootComponent(Collision);
 
 	Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
@@ -35,4 +39,27 @@ AProjectile::AProjectile()
 
 	// Stray shots clean themselves up.
 	InitialLifeSpan = 3.f;
+}
+
+void AProjectile::OnHit(
+	UPrimitiveComponent* HitComponent,
+	AActor* OtherActor,
+	UPrimitiveComponent* OtherComponent,
+	FVector NormalImpulse,
+	const FHitResult& Hit)
+{
+	// Never damage whoever fired us.
+	if (!OtherActor || OtherActor == this || OtherActor == GetOwner())
+	{
+		return;
+	}
+
+	UGameplayStatics::ApplyDamage(
+		OtherActor,
+		Damage,
+		GetInstigatorController(),
+		this,
+		UDamageType::StaticClass());
+
+	Destroy();
 }
