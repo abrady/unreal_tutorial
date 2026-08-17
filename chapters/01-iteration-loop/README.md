@@ -112,13 +112,17 @@ is running and fails with a confusing message about hyphens.
 ```bash
 # from the engine root
 Engine/Build/BatchFiles/Mac/Build.sh CombatGymEditor Mac Development \
-  -Project=<repo>/CombatGym/CombatGym.uproject
+  -Project=<repo>/CombatGym/CombatGym.uproject -WaitMutex
 ```
 
-Once the class exists and you're only editing `.cpp` bodies, **Live Coding**
-(`Ctrl+Alt+F11`) patches the running editor in seconds. It cannot add a
-`UPROPERTY`, change class layout, or add a file. When Live Coding reports
-success but nothing changed, you needed a full rebuild.
+| Change | What it needs | Cost |
+|---|---|---|
+| Header, new `UPROPERTY`, new class/file | **Close editor → full build** (`Build.sh … -WaitMutex`) | ~30–90s |
+| `.cpp` body only (e.g. `Tick`) | **Windows:** Live Coding (`Ctrl+Alt+F11`) patches in seconds. **Mac:** no Live Coding — use the Compile button (legacy Hot Reload, deprecated, *may* work for pure body changes like `Tick` but unreliable). Guaranteed path is **close → `Build.sh`** in ~3–7s (relink only). | seconds vs ~3–7s |
+
+Live Coding (Windows, via Live++) and Hot Reload (Mac Compile button) cannot add a
+`UPROPERTY`, change class layout, or add a file. When they report success but
+nothing changed, you needed a full rebuild. On Mac, `Ctrl+Alt+F11` does nothing — use `Build.sh` or the Compile button.
 
 ---
 
@@ -231,9 +235,39 @@ changes a value, hits play.
 which is what you want for something every dummy shares. `EditAnywhere`
 would also let someone override it on one dummy in the level.
 
+Keep **both** pairs — they are different things. The components are the place
+in the world; the meshes are the data to put there:
+
+```cpp
+// Places (created in the constructor)
+UPROPERTY(VisibleAnywhere, Category="Components")
+TObjectPtr<UStaticMeshComponent> Body;
+UPROPERTY(VisibleAnywhere, Category="Components")
+TObjectPtr<UStaticMeshComponent> Head;
+
+// Asset slots (picked in the Blueprint defaults)
+UPROPERTY(EditDefaultsOnly, Category="Visuals")
+TObjectPtr<UStaticMesh> BodyMesh;
+UPROPERTY(EditDefaultsOnly, Category="Visuals")
+TObjectPtr<UStaticMesh> HeadMesh;
+```
+
+In the constructor, keep the tree wiring and make the assignment data-driven:
+
+```cpp
+Body = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Body"));
+SetRootComponent(Body);
+if (BodyMesh) Body->SetStaticMesh(BodyMesh);
+
+Head = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Head"));
+Head->SetupAttachment(Body);
+Head->SetRelativeLocation(FVector(0, 0, 100));
+if (HeadMesh) Head->SetStaticMesh(HeadMesh);
+```
+
 ### Do it
 
-1. Replace the `FObjectFinder` calls with `EditDefaultsOnly` mesh properties.
+1. Keep `Body`/`Head` components (`VisibleAnywhere`), **add** `BodyMesh`/`HeadMesh` asset slots (`EditDefaultsOnly`). Do not delete the components to add the meshes — they work together.
 2. Make a Blueprint class deriving from `ATargetDummy`, called
    `BP_TargetDummy`, in `Content/CombatGym/`.
 3. Set the body and head meshes on it.
