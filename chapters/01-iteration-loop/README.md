@@ -18,9 +18,9 @@ The class shell is already written for you — you're filling in three `TODO`s.
 
 ## What green looks like
 
-Ask your assistant:
+Ask your llm:
 
-> **check my work**
+> check my work
 
 The checks spawn your dummy into a running PIE session, verify it has a
 two-part component tree with the head attached to the body, and sample its
@@ -45,7 +45,7 @@ Don't read ahead. You know C++ and you know what a game loop is — the
 unfamiliar parts are how components hang together and where Unreal lets you
 put things.
 
-**Ask your assistant** to explain concepts, find the right API, or decode a
+**Ask your llm** to explain concepts, find the right API, or decode a
 compiler error. **Don't ask it to write the class.** See
 [`AGENTS.md`](../../AGENTS.md) for why.
 
@@ -167,7 +167,7 @@ arriving early.
 
 ## Run the checks
 
-Ask your assistant:
+Ask your llm:
 
 > **check my work**
 
@@ -179,7 +179,7 @@ Green means you're done.
 
 One dummy is a test case. A gym needs several.
 
-You've built one by hand, so you know what it's made of. **Ask your assistant
+You've built one by hand, so you know what it's made of. **Ask your llm
 to place four more** in a firing line, spaced a few metres apart.
 
 That's a level-editing operation, not a code one — exactly the kind of thing
@@ -239,7 +239,7 @@ would also let someone override it on one dummy in the level.
 3. Set the body and head meshes on it.
 4. Put a `BP_TargetDummy` in the level instead of the raw C++ actor.
 
-Your assistant can create the Blueprint for you — that's asset plumbing, not
+Your llm can create the Blueprint for you — that's asset plumbing, not
 learning. But **you** decide which properties to expose, because that's the
 design judgement: every `EditDefaultsOnly` you add is a promise that someone
 else can change it without you.

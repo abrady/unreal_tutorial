@@ -13,13 +13,18 @@ In the install options you can safely deselect **Editor symbols for
 debugging** and every target platform except your own — that typically halves
 the download.
 
-### 2. Open this folder in VS Code, with your AI assistant
+### 2. Clone and open this folder in VS Code, with your AI assistant
+
+```
+git clone https://github.com/abrady/unreal_tutorial.git ~/unreal_tutorial_run
+cd ~/unreal_tutorial_run
+```
 
 Devmate, Claude Code, Cursor — whatever you use.
 
 ### 3. Say this to it
 
-> **start lesson one**
+> start lesson one
 
 That's it. Your assistant will find your Unreal install, build the project,
 launch the editor, wire itself up to it, and check that everything works

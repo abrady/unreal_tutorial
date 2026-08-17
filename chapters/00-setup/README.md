@@ -1,7 +1,6 @@
 # Before you start
 
-Ten minutes of orientation. You don't have to memorise any of it — it's here
-so the first hour makes sense instead of feeling arbitrary.
+Ten minute orientation covering some Unreal basics.
 
 ---
 
@@ -16,50 +15,36 @@ light, and a player who can't do anything yet.
 
 ## How this works
 
-Each chapter follows the same shape, and it's deliberate:
+Each chapter follows the same shape:
 
-1. **You're given the task before the explanation.** Try it first. You'll
+1. You're given the task before the explanation. Try it first. You'll
    probably get partway and hit something confusing — that's the point, not a
    failure of the material. You remember things you had to fight for.
-2. **Then the concepts**, aimed at whatever you just hit.
-3. **Then you check your work.** Ask your assistant to check it; it verifies
+2. Then the concepts, aimed at whatever you just hit.
+3. Then you check your work. Ask your assistant to check it; it verifies
    against the *running editor*, not by reading your code.
-4. **Hints are there when you want them**, in collapsed sections, ordered
+4. Hints are there when you want them, in collapsed sections, ordered
    from gentle to explicit.
 
-**You are not expected to finish in one sitting.** Chapters stand alone. Two
+You are not expected to finish in one sitting. Chapters stand alone. Two
 chapters done properly beats five rushed, and coming back in three days is
 normal — your assistant can tell you where you left off.
 
-## Your assistant, and the one rule
+## AI and the MCP
 
-It's wired into the running editor. It can start the game, inspect live
-actors mid-play, read real compiler errors, and tell you *why* something
-isn't working from actual state rather than guessing at your source.
+Unreal 5.8 has an mcp built in and your llm of choice can talk to the running editor. It can start the game, inspect live actors mid-play, read real compiler errors, and tell you *why* something isn't working from actual state rather than guessing at your source.
 
-**It won't write your chapters.** Not because using AI is cheating — because
-of a specific result. Bastani et al. (2024) gave ~1000 students unrestricted
-GPT-4 or a guardrailed hint-giving tutor. The unrestricted group did **+48%**
-on practice work and then **−17%** on an unassisted exam, ending up *worse
-than students who never had AI at all*. The guardrailed group kept the gains.
-
-So during a chapter it explains, inspects, and diagnoses. Once your checks
+During a chapter it explains, inspects, and diagnoses. Once your checks
 pass, the restrictions lift entirely — compare against the reference, ask it
 to tear your version apart.
 
-**The exception, and you should use it:** once you've done something *once*,
-hand off the repetition. You wire one input action; it wires the next two.
-You place one dummy; it places four more. That's the working pattern, not a
-loophole.
+Once you've done something enough, hand off the repetition.
 
 ---
 
-## Unreal's C++ is not quite C++
+## Unreal's C++:
 
-This is the part that trips up experienced engineers, and it's worth
-understanding before you write a line.
-
-### There's a code generator in front of the compiler
+### Unreal Header Tool (UHT)
 
 Unreal builds in two stages:
 
@@ -156,7 +141,7 @@ works perfectly until a collection happens to run.
 
 Also Chapter 2. Also on purpose.
 
-## Two languages, one project
+## C++ and Blueprints
 
 Unreal projects are written in **C++ and Blueprint**, and the split is a
 convention worth learning on day one:
@@ -180,16 +165,14 @@ boundary sits tells you whether a bug lives in code or in data.
 
 ---
 
-## The iteration loop
-
-You'll do this a lot, so know it now.
+## A common iteration loop
 
 | Change | What it needs | Cost |
 |---|---|---|
 | A `.cpp` body | **Live Coding** (`Ctrl+Alt+F11`) | seconds |
 | A header, a new `UPROPERTY`, a new class | **Full rebuild, editor closed** | ~30–90s |
 
-Live Coding cannot add a property, change class layout, or add a file. When
+Note: Live Coding cannot add a property, change class layout, or add a file. When
 it reports success and nothing changed, you needed a full rebuild.
 
 Most of Chapters 1 and 2 are header changes, so expect the close-build-reopen
@@ -201,7 +184,7 @@ Your assistant can run the builds for you. Ask.
 
 ---
 
-## What's already done for you
+## What's already done
 
 - The **project**, with a level, lighting, and a player character that has a
   camera and can take damage
@@ -214,5 +197,5 @@ Your assistant can run the builds for you. Ask.
 
 ---
 
-Ready. Open [Chapter 1](../01-iteration-loop/README.md), or just tell your
+Next: Open [Chapter 1](../01-iteration-loop/README.md), or just tell your
 assistant to start.
