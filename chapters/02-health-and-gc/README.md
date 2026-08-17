@@ -222,6 +222,38 @@ pointer while you're in the broken state.
 fires when a collection finishes. Remember to unbind it in `EndPlay`.
 </details>
 
+<details>
+<summary>Can I make the GC test manual? (optional)</summary>
+
+Add a `UPROPERTY(EditAnywhere)` bool to trigger it yourself during PIE:
+
+```cpp
+UPROPERTY(EditAnywhere, Category="Combat")
+bool bRunGC = false;
+```
+
+Watch it in `Tick`:
+
+```cpp
+if (bRunGC)
+{
+    bRunGC = false;
+    bCollectionRan = false;
+    if (GEngine) GEngine->ForceGarbageCollection(true);
+}
+else if (!bCollectionRan)
+{
+    bHistorySurvived = Observer.IsValid();
+    bCollectionRan = true;
+}
+```
+
+Then during PIE (`Shift+F1` to release cursor), tick `bRunGC` in
+**Details → Combat** and watch `bHistorySurvived` update a frame later.
+Clear `bHistorySurvived`/`bCollectionRan` to re-run. Purely manual —
+useful if the auto-GC in `Tick` feels too magical.
+</details>
+
 ---
 
 ## Run the checks
