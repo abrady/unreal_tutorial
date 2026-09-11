@@ -80,6 +80,17 @@ public:
 	// or mismatched overrides, so get the signature right.
 	virtual void Tick(float DeltaSeconds) override;
 
+	// Runs whenever the actor is (re)constructed: placed in a level, loaded
+	// with the map, spawned at runtime, or nudged in the Details panel.
+	//
+	// Chapter 1b lives or dies on the timing here. The constructor runs BEFORE
+	// a Blueprint subclass deserialises its defaults, so a constructor that
+	// reads BodyMesh reads null and silently does nothing. OnConstruction runs
+	// after, which makes it the first place the Blueprint's data is real.
+	//
+	// This is the C++ half of what a Construction Script does in Blueprint.
+	virtual void OnConstruction(const FTransform& Transform) override;
+
 	// UPROPERTY() tells the reflection system to track this member. It is not
 	// decoration - it buys four separate things:
 	//

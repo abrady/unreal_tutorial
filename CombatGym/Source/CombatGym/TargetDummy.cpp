@@ -17,17 +17,22 @@ ATargetDummy::ATargetDummy()
 	Head->SetRelativeLocation(FVector(0.f, 0.f, 110.f));
 	Head->SetRelativeScale3D(FVector(0.6f));
 
-	// Chapter 1b: data-driven assignment. The tree wiring above stays; the
-	// mesh choice moved to BP_TargetDummy. Nothing hardcoded to recompile.
-	if (BodyMesh)
-	{
-		Body->SetStaticMesh(BodyMesh);
-	}
+	// Note what is NOT here: any mention of which mesh. The constructor builds
+	// the tree; BP_TargetDummy decides what goes in it. See OnConstruction.
+}
 
-	if (HeadMesh)
-	{
-		Head->SetStaticMesh(HeadMesh);
-	}
+void ATargetDummy::OnConstruction(const FTransform& Transform)
+{
+	Super::OnConstruction(Transform);
+
+	// Chapter 1b: data-driven assignment. By now the Blueprint's defaults have
+	// been applied, so BodyMesh/HeadMesh hold whatever BP_TargetDummy set.
+	//
+	// Assigned unconditionally rather than behind an 'if (BodyMesh)' guard:
+	// this re-runs every time someone edits the Blueprint, and clearing a slot
+	// should clear the mesh rather than leave the old one stranded.
+	Body->SetStaticMesh(BodyMesh);
+	Head->SetStaticMesh(HeadMesh);
 }
 
 void ATargetDummy::Tick(float DeltaSeconds)
