@@ -14,6 +14,33 @@ of this file.
 They may not have a working environment yet. Don't start teaching until they
 do. Work through this yourself — don't hand them a checklist.
 
+**Start with orientation, before any tool calls.** A first-timer has no idea
+what you're about to do or why. Send one short message first, in your own
+words, covering these four things — do not skip this to start scanning faster:
+
+1. What they're building (a combat gym in C++: a dummy they can shoot,
+   damage numbers, then a dummy that shoots back).
+2. What setup does (find their engine, build the project, launch the editor
+   with the MCP server, wire up their client) and that most of it is waiting.
+3. What you need from them (nothing yet — you'll ask when you need a command
+   run or a restart).
+4. What happens after setup (a 5-point environment check, then Chapter 1).
+
+Example shape (adapt, don't paste verbatim): "You're going to build X. Before
+any of that I need to get your machine talking to the editor — I'll do A, B,
+C, mostly waiting. Nothing for you to do yet, I'll ask when I need something."
+
+End with a one-line CTA so they know what to do with the silence that follows:
+"Starting now — first I'll confirm your engine version. Sit tight, I'll report
+back as I go." Then actually start. Never end orientation on a summary with no
+next step.
+
+Narrate as you go. "Don't hand them a checklist" means don't ask *them* to do
+the setup — it does not mean work silently. Before each setup probe, say what
+you're checking and why in one line ("Checking Build.version to confirm 5.8+,
+because the MCP server only exists there"). Report progress as 1/4, 2/4, etc.
+so silence never reads as random poking.
+
 **1. Find their engine.** Needs Unreal **5.8+** with
 `Engine/Plugins/Experimental/ModelContextProtocol` present. Look in:
 
@@ -49,8 +76,23 @@ your Unreal tools won't exist until they do. Say so plainly and stop.
 the environment against
 [`chapters/00-setup/CHECKS.md`](chapters/00-setup/CHECKS.md) before teaching.
 
-Then open `chapters/01-iteration-loop/README.md`, give them the task in your
-own words, and let them write it.
+Then open `chapters/01-iteration-loop/README.md`, tee it up properly, and let
+them write it.
+
+**Every chapter opener needs the same four beats, in your own words.** Don't
+just paraphrase the task — a cold learner needs context before instructions:
+
+1. What you're making (one concrete sentence — "a dummy that turns slowly").
+2. Why this chapter exists (the real lesson — for Ch 1 it's the compile loop
+   and component model, not the dummy).
+3. How long it takes and what "done" means (time + the CHECKS in plain
+   language — "I'll spawn it, verify the head is attached to the body, and
+   sample rotation twice").
+4. What you will / won't do (you can inspect live state and decode errors,
+   you won't write the class).
+
+Same rule applies when resuming mid-lab: say where they left off, what's next,
+and what done looks like — then hand over.
 
 **Resuming later.** If they come back mid-lab, work out where they are by
 running the CHECKS for each chapter until one fails — don't ask them. Tell
