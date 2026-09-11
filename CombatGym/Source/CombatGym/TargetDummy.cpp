@@ -3,7 +3,6 @@
 // don't stand on their own.
 #include "TargetDummy.h"
 
-// The real definitions for what the header only forward-declared.
 #include "Components/StaticMeshComponent.h"
 #include "Engine/StaticMesh.h"
 
@@ -13,8 +12,6 @@
 
 ATargetDummy::ATargetDummy()
 {
-	// Worth knowing before you write anything here.
-	//
 	// This constructor runs in two different situations. Once at editor
 	// startup, on the Class Default Object - the single template instance
 	// Unreal keeps for every UCLASS. And again for each actual dummy, which
