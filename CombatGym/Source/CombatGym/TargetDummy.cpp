@@ -4,7 +4,6 @@
 
 #include "Components/StaticMeshComponent.h"
 #include "Engine/StaticMesh.h"
-#include "UObject/ConstructorHelpers.h"
 
 ATargetDummy::ATargetDummy()
 {
@@ -18,18 +17,16 @@ ATargetDummy::ATargetDummy()
 	Head->SetRelativeLocation(FVector(0.f, 0.f, 110.f));
 	Head->SetRelativeScale3D(FVector(0.6f));
 
-	static ConstructorHelpers::FObjectFinder<UStaticMesh> CylinderMesh(
-		TEXT("/Engine/BasicShapes/Cylinder.Cylinder"));
-	if (CylinderMesh.Succeeded())
+	// Chapter 1b: data-driven assignment. The tree wiring above stays; the
+	// mesh choice moved to BP_TargetDummy. Nothing hardcoded to recompile.
+	if (BodyMesh)
 	{
-		Body->SetStaticMesh(CylinderMesh.Object);
+		Body->SetStaticMesh(BodyMesh);
 	}
 
-	static ConstructorHelpers::FObjectFinder<UStaticMesh> SphereMesh(
-		TEXT("/Engine/BasicShapes/Sphere.Sphere"));
-	if (SphereMesh.Succeeded())
+	if (HeadMesh)
 	{
-		Head->SetStaticMesh(SphereMesh.Object);
+		Head->SetStaticMesh(HeadMesh);
 	}
 }
 

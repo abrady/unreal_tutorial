@@ -14,6 +14,10 @@
 // spawned into a level."
 #include "GameFramework/Actor.h"
 
+// Needed for the BodyMesh/HeadMesh slots below: a UPROPERTY TObjectPtr
+// member needs its element type's full declaration, not just a forward.
+#include "Engine/StaticMesh.h"
+
 // THIS MUST BE THE LAST INCLUDE. UnrealHeaderTool scans everything above it
 // and generates the file being included here. Move it up and you'll get
 // errors that don't mention includes and won't make sense.
@@ -102,4 +106,14 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, Category = "Components")
 	TObjectPtr<UStaticMeshComponent> Head;
+
+	// Chapter 1b: the asset slots. The components above are the places in
+	// the world; these are the data to put there, picked in BP_TargetDummy
+	// instead of hardcoded below. EditDefaultsOnly: shared by every dummy,
+	// changeable without a programmer.
+	UPROPERTY(EditDefaultsOnly, Category = "Visuals")
+	TObjectPtr<UStaticMesh> BodyMesh;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Visuals")
+	TObjectPtr<UStaticMesh> HeadMesh;
 };
