@@ -29,14 +29,14 @@ inspect live actors, and read real compiler errors — Ask it *"why isn't this w
 
 ## The Labs
 
-| Ch | Build | The thing that actually bites |
+| Ch | Build | key bits |
 |---|---|---|
 | 0 | Setup *(pre-work — do this first)* | The install is bigger than you think |
 | 1 | A target dummy, turning slowly | `.generated.h` order; components and attachment |
-| 2 | Give it health | Your constructor runs on an object that isn't your object |
+| 2 | Give it health | lifecycle methods vs. the ctor |
 | 3 | You, and you can shoot | Which of six framework classes owns this |
 | 4 | Hits land, damage numbers pop | The collision matrix has two sides |
-| 5 | The dummy shoots back | Composition — the pattern Unreal is built on |
+| 5 | The dummy shoots back | Composition |
 | 6 | Three dummies: AOE, homing missiles, spread shot |
 | 7 | Attacks driven by animation timing, via montage notifies |
 
