@@ -1,4 +1,4 @@
-# Unreal, the hard way (with an AI that won't do it for you)
+# Unreal with an AI tutor
 
 Build a combat gym. Shoot a target dummy, watch damage numbers pop off it,
 then attach a component and watch the dummy shoot back.
@@ -16,59 +16,18 @@ it for you.
 
 ## Why this exists
 
-DRE engineers support partners shipping real Unreal titles, and that job needs
-UE fluency.
+People are slow in Unreal because Unreal has about six idioms
+that just need practice to get used to: Reflection, the build loop, the Class Default
+Object, garbage collection, the gameplay framework, and a few others.
 
-The people who need it are not beginners — they know C++, callbacks and
-composition cold. They're slow in Unreal because Unreal has about six idioms
-that no tutorial names out loud, and most public material teaches around them
-rather than through them. Reflection and the build loop. The Class Default
-Object. Garbage collection. The gameplay framework. The collision matrix.
-Composition over inheritance.
+## How to use it
 
-Each chapter here is one of those, taught as a consequence you hit on purpose
-rather than a fact you're told.
+The best way to learn with this is to do the labs with your agent that has full editor access and to treat it like a tutor helping to verify what you did and explaining concepts you're not grasping.
 
-It's deliberately **one lab**, complete and useful on its own. Extra chapters
-are take-home and optional.
+Unreal 5.8 ships Epic's `ModelContextProtocol` plugin. Enable a checkbox and your agent can start PIE,
+inspect live actors, and read real compiler errors — Ask it *"why isn't this working?"* and it can go look.
 
-## What makes it different
-
-**Your agent is inside the editor.** Unreal 5.8 ships Epic's
-`ModelContextProtocol` plugin. Enable a checkbox and your agent can start PIE,
-inspect live actors, and read real compiler errors — Ask it *"why isn't this working?"* and it can go look, rather than guess
-from your source.
-
-You'll also add `UFUNCTION(meta = (AICallable))` to your own C++ and watch it
-appear as a tool the agent can call. The agent isn't something done to you —
-it's something you extend.
-
-What it won't do is write your chapter. That's a rule in
-[`AGENTS.md`](AGENTS.md), and there's a reason.
-
-
-## Practice, but you *should* delegate the repetition
-
-The rule above isn't "don't use the agent." It's "don't let it do the part
-you haven't learned yet."
-
-Once you've done something **once, by hand**, doing it four more times isn't
-learning — it's typing. Hand that over:
-
-> You wire `IA_Fire` yourself. Then you ask the agent to add `IA_Reload` and
-> `IA_Dash` the same way.
->
-> You place one target dummy. Then you ask it to place four more in a firing
-> line.
-
-Every chapter ends with something to delegate. That's the working pattern the
-lab is actually teaching: **understand it once, then hand off the grind.**
-
-And when the agent *can't* do it — that's worth knowing too. The 255 tools
-have edges. Finding them is part of why you're here, because a partner is
-going to ask you where they are.
-
-## What you'll build
+## The Labs
 
 | Ch | Build | The thing that actually bites |
 |---|---|---|
@@ -78,36 +37,10 @@ going to ask you where they are.
 | 3 | You, and you can shoot | Which of six framework classes owns this |
 | 4 | Hits land, damage numbers pop | The collision matrix has two sides |
 | 5 | The dummy shoots back | Composition — the pattern Unreal is built on |
-
-**Chapters 1–5 are the session: roughly 5 hours.** Not a half day — 1 and 2
-run ~45 minutes, 3 through 5 run 60–90. Better to know that now.
-
-Then, take-home and substantial (60–90 min each):
-
-| Ch | Build |
-|---|---|
 | 6 | Three dummies: AOE, homing missiles, spread shot |
 | 7 | Attacks driven by animation timing, via montage notifies |
 
-**Chapter 2 is the one that matters.** Every C++ engineer gets burned by
-UObject lifetime exactly once, and it's the line between copying Unreal
-tutorials and understanding Unreal. You'll get burned on purpose, with a
-assistant that checks the running editor to tell you when you've actually
-fixed it.
-
-## About the VR part
-
-There isn't one, in the lab. Vanilla Unreal, desktop PIE, no MetaXR plugin, no
-Android toolchain, no headset.
-
-But by Chapter 5 your ability components don't know what triggered them, your
-damage pipeline doesn't know what dealt the damage, and your firing code
-doesn't know what device sent `IA_Fire`. Swap the desktop pawn for a VR pawn
-and the combat layer is untouched.
-
-That's the real lesson about writing VR-ready systems, and it's architectural
-— you can learn it without owning a headset. The optional capstone does the
-swap if you have one.
+Chapter 0 through 2 are the most important.
 
 ## Getting started
 
