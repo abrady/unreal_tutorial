@@ -39,4 +39,4 @@ can be verified.
 ---
 
 Once all five hold, tell them they're set up and open
-[Chapter 1](../01-iteration-loop/README.md).
+[Chapter 1a](../01a-iteration-loop/README.md).

@@ -197,5 +197,5 @@ Your assistant can run the builds for you. Ask.
 
 ---
 
-Next: Open [Chapter 1](../01-iteration-loop/README.md), or just tell your
+Next: Open [Chapter 1a](../01a-iteration-loop/README.md), or just tell your
 assistant to start.

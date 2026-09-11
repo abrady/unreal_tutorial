@@ -76,8 +76,9 @@ your Unreal tools won't exist until they do. Say so plainly and stop.
 the environment against
 [`chapters/00-setup/CHECKS.md`](chapters/00-setup/CHECKS.md) before teaching.
 
-Then open `chapters/01-iteration-loop/README.md`, tee it up properly, and let
-them write it.
+Then open `chapters/01a-iteration-loop/README.md`, tee it up properly, and let
+them write it. When 1a's checks pass, move to
+`chapters/01b-blueprint-boundary/README.md` before anything in Chapter 2.
 
 **Every chapter opener needs the same four beats, in your own words.** Don't
 just paraphrase the task — a cold learner needs context before instructions:

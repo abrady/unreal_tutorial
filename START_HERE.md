@@ -20,17 +20,20 @@ git clone https://github.com/abrady/unreal_tutorial.git ~/unreal_tutorial_run
 cd ~/unreal_tutorial_run
 ```
 
-Devmate, Claude Code, Cursor — whatever you use.
 
-### 3. Say this to it
+### 3. Read the README.md
+
+This tees up the goal of the chapter and is a good reference to come back to
+
+### 4. Use the llm
+
+Devmate, Claude Code, Cursor. Fire it up and say:
 
 > start lesson one
 
-That's it. Your assistant will find your Unreal install, build the project,
-launch the editor, wire itself up to it, and check that everything works
-before teaching you anything.
+That's it. Your assistant will find your Unreal install, read the lesson plan and help guide you.
 
-If something's wrong, it'll tell you what to do about it.
+If something's wrong, ask it for help, it'll tell you what to do about it.
 
 ---
 

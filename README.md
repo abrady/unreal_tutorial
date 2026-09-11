@@ -32,7 +32,8 @@ inspect live actors, and read real compiler errors — Ask it *"why isn't this w
 | Ch | Build | key bits |
 |---|---|---|
 | 0 | Setup *(pre-work — do this first)* | The install is bigger than you think |
-| 1 | A target dummy, turning slowly | `.generated.h` order; components and attachment |
+| 1a | A target dummy, turning slowly | `.generated.h` order; components and attachment |
+| 1b | The dummy's meshes move to a Blueprint | C++ owns behaviour, Blueprint owns data |
 | 2 | Give it health | lifecycle methods vs. the ctor |
 | 3 | You, and you can shoot | Which of six framework classes owns this |
 | 4 | Hits land, damage numbers pop | The collision matrix has two sides |
