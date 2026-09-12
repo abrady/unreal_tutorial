@@ -1,7 +1,5 @@
 # Start here
 
-You need three things. Two of them are downloads.
-
 ---
 
 ### 1. Install Unreal 5.8 or newer
@@ -21,21 +19,67 @@ cd ~/unreal_tutorial_run
 ```
 
 
-### 3. Read the README.md for each chapter.
+### 3. A quick Unreal architecture intro
 
-Look over chapters/01a-iteration-loop/README.md
+Unreal has to make your C++ code work in several unusual contexts:
 
-This tees up the goal of the chapter and is a good reference to come back to
+- The editor needs to expose objects and properties so you can place things
+  and tune their behavior.
+- The engine needs to serialize the large amount of data associated with
+  those objects.
+- The build system needs to package the game for platforms such as macOS,
+  Windows, Android, and Quest.
 
-### 4. Use the llm
+Suppose you have a minion enemy. Its core AI and combat behavior might be
+implemented as C++ components. You could then create specialized Blueprints
+from that C++ class, choose their weapons and aggression settings, and place
+them into encounters in the editor. Unreal loads and saves that configuration,
+creates the instances during play, and tracks references to Unreal objects for
+garbage collection.
 
-Devmate, Claude Code, Cursor. Fire it up and say:
+That’s why Unreal projects come with some unusual machinery: Unreal Build Tool
+(UBT), Unreal Header Tool (UHT), and macros such as `UCLASS`, `UPROPERTY`, and
+`GENERATED_BODY`. Together, they connect ordinary C++ to Unreal’s build,
+reflection, serialization, editor, and garbage-collection systems. You don’t
+need to understand all of that yet; [`Chapter 0`](chapters/00-setup/README.md)
+explains the important pieces.
+
+### 4. Read each chapter's README
+
+Each chapter begins with a README that explains what you're building and
+introduces the relevant concepts:
+
+- [Before you start](chapters/00-setup/README.md) introduces the lab workflow
+  and the machinery behind Unreal C++.
+- [Chapter 1a — The iteration loop, and the dummy](chapters/01a-iteration-loop/README.md)
+  introduces the compile loop and component model.
+- [Chapter 1b — C++ owns behaviour. Blueprint owns data.](chapters/01b-blueprint-boundary/README.md)
+  separates C++ behavior from designer-configurable Blueprint data.
+- [Chapter 2 — Health, the CDO, and the collector](chapters/02-health-and-gc/README.md)
+  explores object lifetimes, the Class Default Object, and garbage collection.
+- [Chapter 3 — You, and you can shoot](chapters/03-shooting/README.md)
+  introduces the gameplay framework, player input, and projectiles.
+- [Chapter 4 — Hits, damage, and floating numbers](chapters/04-damage/README.md)
+  covers collision, damage, and gameplay feedback.
+- [Chapter 5 — Ability components: the dummy shoots back](chapters/05-ability-components/README.md)
+  teaches composition through reusable ability components.
+- [Chapter 6 — Three dummies, three powers](chapters/06-powers/README.md)
+  extends that component design with three different abilities.
+- [Chapter 7 — Montages and AnimNotify](chapters/07-montage-notifies/README.md)
+  synchronizes attacks with animation timing.
+
+You don't need to memorize these now, but come back to them as you're learning.
+
+### 5. Use an AI assistant
+
+Devmate, Claude Code, or Cursor. Fire it up and say:
 
 > start lesson one
 
-That's it. Your assistant will find your Unreal install, read the lesson plan and help guide you.
+That's it. Your assistant will find your Unreal installation, read the lesson
+plan, and guide you.
 
-If something's wrong, ask it for help, it'll tell you what to do about it.
+If something's wrong, ask it for help. It'll tell you what to do next.
 
 ---
 
@@ -47,14 +91,12 @@ popping off it, and eventually a dummy that shoots back.
 **You do not need a VR headset.** You need a machine that runs Unreal.
 
 **You are not expected to finish in one sitting.** Chapters stand alone and
-the lab remembers where you are — come back whenever, and run:
+the lab remembers where you are — come back whenever and tell your assistant:
 
-```bash
-ask your assistant to check your work
-```
+> Check my work.
 
-That prints every chapter's state, so picking up cold three days later takes
-about ten seconds.
+It will check your progress, so picking up cold three days later takes about
+ten seconds.
 
 ## The one rule
 
