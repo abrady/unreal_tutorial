@@ -21,7 +21,9 @@ cd ~/unreal_tutorial_run
 ```
 
 
-### 3. Read the README.md
+### 3. Read the README.md for each chapter.
+
+Look over chapters/01a-iteration-loop/README.md
 
 This tees up the goal of the chapter and is a good reference to come back to
 
