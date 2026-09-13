@@ -1,5 +1,20 @@
 # Start here
 
+This tutorial is designed to partner you with an llm and some carefully crafted challenges
+that will help ramp you up on how Unreal approaches a lot of common ideas you've probably
+seen before: serialization, lifecycle, components, garbage collection and others.
+
+What you should do is for each chapter:
+
+- look over the README.md to see what you're building
+- fire up an llm of your choice
+- start building it, working with the llm to answer any questions
+- ask the llm to validate. it has a series of checks for each chapter and will let you know how you're doing
+
+The key thing is that the llm can look inside Unreal with the mcp and see your code, so it can help guide
+you through concepts quickly and with little frustration, making sure you've nailed them in each chapter
+before moving on.
+
 ---
 
 ### 1. Install Unreal 5.8 or newer
