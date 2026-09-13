@@ -3,28 +3,15 @@
 **Goal:** stand in the gym, click, and watch something fly at the dummy.
 
 The character, camera, and movement are already written for you. You wire the
-input and make the projectile. That's a deliberate scope cut — character
-boilerplate teaches almost nothing and eats the clock.
+input and make the projectile. 
 
 **Time:** ~60 minutes.
 
 ---
 
-## What green looks like
-
-Ask your assistant:
-
-> **check my work**
-
-The checks start PIE, confirm a pawn got possessed, inject a fire input, and
-assert a projectile actually exists in the world.
-
----
-
 ## Part A — the six classes
 
-Get this into your head before you write anything. Almost every "why is my
-data gone?" bug in Unreal is state living in the wrong one of these.
+Almost every "why is my data gone?" bug in Unreal is state living in the wrong one of these.
 
 | Class | How many | Lives where | Owns |
 |---|---|---|---|
