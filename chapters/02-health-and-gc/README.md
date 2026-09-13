@@ -1,16 +1,7 @@
 # Chapter 2 — Health, the CDO, and the collector
 
-**Goal:** give the dummy something to lose, and find out the hard way how
-Unreal objects are actually born and destroyed.
-
-This is the chapter that matters. Everything else in the lab is Unreal
-knowledge you'd pick up eventually. This is the line between copying Unreal
-tutorials and understanding Unreal, and every C++ engineer gets burned by it
-exactly once.
-
-Today you get burned on purpose, and your assistant will tell you — from
-the running editor, not from reading your code — when you've actually fixed
-it.
+**Goal:** give the dummy something to lose, and find out how
+Unreal objects are born and destroyed.
 
 **Time:** ~45 minutes.
 
@@ -18,11 +9,8 @@ it.
 
 ## What green looks like
 
-Ask your assistant:
 
-> **check my work**
-
-Four checks. Two about *when* your code runs, two about *whether your objects
+There are four checks. Two about *when* your code runs, two about *whether your objects
 survive*.
 
 ---
