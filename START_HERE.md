@@ -11,9 +11,15 @@ What you should do is for each chapter:
 - start building it, working with the llm to answer any questions
 - ask the llm to validate. it has a series of checks for each chapter and will let you know how you're doing
 
-The key thing is that the llm can look inside Unreal with the mcp and see your code, so it can help guide
-you through concepts quickly and with little frustration, making sure you've nailed them in each chapter
-before moving on.
+The key thing is that the llm can:
+- fire off the compile after you make changes. 
+- open Unreal when you need it.
+- look inside Unreal editor state with the mcp and see your code 
+- determine how much in each chapter you've done
+
+All these help guide you through concepts quickly and with little frustration, making sure you've nailed them in each chapter before moving on. 
+
+So if you ever need help, ask the llm.
 
 ---
 
