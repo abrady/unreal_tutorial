@@ -79,7 +79,12 @@ Your assistant copes with either tool-search setting.
 
 ## 5. Point your AI client at the editor
 
-Claude Code, user scope (`~/.claude.json`):
+Use your client's native MCP configuration to register a streamable HTTP
+server named `unreal` at `http://localhost:8000/mcp`. Your assistant should
+detect the client it is running in and configure this for you rather than
+assuming a particular product.
+
+For example, Claude Code uses `~/.claude.json` at user scope:
 
 ```json
 { "mcpServers": { "unreal": { "type": "http", "url": "http://localhost:8000/mcp" } } }

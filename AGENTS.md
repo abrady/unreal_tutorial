@@ -63,7 +63,12 @@ exact command per platform. First build can take minutes.
 **4. Launch with the MCP server** and wait for port 8000. Up to 3 minutes
 cold. If it doesn't come up, check for a modal dialog behind their windows.
 
-**5. Wire their client.** Add to `~/.claude.json` (back it up first):
+**5. Wire their client.** Detect which client you are running in and use its
+native MCP configuration mechanism to register the streamable HTTP server at
+`http://localhost:8000/mcp`. Do not assume the client is Claude. Back up any
+configuration file before editing it.
+
+For example, Claude Code uses `~/.claude.json`:
 
 ```json
 { "mcpServers": { "unreal": { "type": "http", "url": "http://localhost:8000/mcp" } } }

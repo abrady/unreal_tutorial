@@ -2,45 +2,45 @@
 
 *For the assistant. All three must hold. Starts from green Chapter 1a.*
 
-Adding a `UPROPERTY` changes class layout, so if the class doesn't exist or
-the new properties are missing, they likely edited the header without a full
-rebuild (editor closed) — same rule as 1a.
+This chapter changes component defaults in a Blueprint rather than adding new
+C++ properties. If the Blueprint still inherits hardcoded meshes, they likely
+did not rebuild after removing the constructor-time loading.
 
 ---
 
 **1. No hardcoded asset paths left.**
 
-The constructor must not call `FObjectFinder` for the meshes anymore. The
-class declares the choice instead:
+The constructor must not call `FObjectFinder` or `SetStaticMesh` for the
+meshes anymore. It creates and attaches the `Body` / `Head` components but
+does not choose their assets.
 
-- `BodyMesh` / `HeadMesh` exist as `UPROPERTY(EditDefaultsOnly)` — check with
-  `list_properties` on the class or a spawned instance
-- If `FObjectFinder` is still in the constructor, they added the properties
-  without removing the old loading — the meshes they set in the Blueprint are
-  being overwritten (or ignored)
+If either remains, C++ still owns the asset choice and the Blueprint boundary
+has not actually moved.
 
 **2. A Blueprint subclass exists, with meshes set.**
 
 A Blueprint deriving from `ATargetDummy` exists (conventionally
-`BP_TargetDummy` in `Content/CombatGym/`), with the body and head meshes set
-in its defaults.
+`BP_TargetDummy` in `Content/CombatGym/`). Use `get_default_object`, then
+`get_components` on its CDO. Read `StaticMesh` from the inherited `Body` and
+`Head` component templates; they must be Cylinder and Sphere respectively.
 
 You can create the Blueprint for them — `BlueprintTools.create` takes a parent
-class — since that's asset plumbing. **Don't choose which properties to
-expose for them.** That's the design judgement the chapter is teaching:
-every `EditDefaultsOnly` is a promise that someone else can change it without
-a programmer.
+class — since that's asset plumbing. Let them decide that mesh choice belongs
+in Blueprint; then configuring the two component defaults is mechanical.
 
 **3. The level holds the Blueprint, not the raw C++ actor.**
 
-`find_actors` for the `TargetDummy` family in the level should return the
-Blueprint instances. If only raw C++ actors are placed, they did the work but
-never switched the level over — the thing a player sees is still the
-hardcoded one.
+`find_actors` for the `TargetDummy` family in the editor world should return
+Blueprint instances and no raw `/Script/CombatGym.TargetDummy` instances. If
+a raw C++ actor remains, they added the Blueprint without replacing the old
+level actor.
 
 Verify the placed Blueprint actually renders: `get_components` on the PIE
-copy → two mesh components, same as 1a check 2. A Blueprint with empty mesh
 slots spawns a turning invisible dummy.
+
+Finally, verify the Blueprint and level packages are saved (`is_dirty` is
+false). Compiling a Blueprint updates the in-memory class; saving persists its
+defaults and the level replacement across an editor restart.
 
 ---
 

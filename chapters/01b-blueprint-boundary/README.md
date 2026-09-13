@@ -42,11 +42,12 @@ You've hardcoded an asset path into compiled code.
 
 **C++ owns behaviour. Blueprint owns data.**
 
-The C++ class declares a knob and says nothing about what goes in it:
+The C++ class creates the component and says nothing about which asset it
+renders:
 
 ```cpp
-UPROPERTY(EditDefaultsOnly, Category = "Visuals")
-TObjectPtr<UStaticMesh> BodyMesh;
+UPROPERTY(VisibleAnywhere, Category = "Components")
+TObjectPtr<UStaticMeshComponent> Body;
 ```
 
 Then a Blueprint *subclass* fills it in:
@@ -59,61 +60,63 @@ ATargetDummy          (C++)     tick, rotation, later: health and damage
 Nobody recompiles to retune a dummy. A designer opens `BP_TargetDummy`,
 changes a value, hits play.
 
-`EditDefaultsOnly` means "editable on the class, not per placed instance" —
-which is what you want for something every dummy shares. `EditAnywhere`
-would also let someone override it on one dummy in the level.
+`VisibleAnywhere` makes the component reference visible but not replaceable.
+The component's own editable settings — including **Static Mesh** — remain
+configurable on the Blueprint class. C++ owns the component tree; Blueprint
+owns the component defaults.
 
 ### Do it
 
-1. Keep `Body`/`Head` components (`VisibleAnywhere`), **add** `BodyMesh`/`HeadMesh` asset slots (`EditDefaultsOnly`). Do not delete the components to add the meshes — they work together.
-2. Make a Blueprint class deriving from `ATargetDummy`, called
+1. Remove the `FObjectFinder` mesh loading and `SetStaticMesh` calls from the
+   constructor, along with the now-unused `ConstructorHelpers` / `StaticMesh`
+   includes. Keep the `Body` / `Head` components and their tree wiring.
+2. Rebuild, then make a Blueprint class deriving from `ATargetDummy`, called
    `BP_TargetDummy`, in `Content/CombatGym/`.
-3. Set the body and head meshes on it.
-4. Put a `BP_TargetDummy` in the level instead of the raw C++ actor.
+3. In the Blueprint's Components panel, select inherited `Body` and set its
+   **Static Mesh** to Cylinder. Select inherited `Head` and set its
+   **Static Mesh** to Sphere.
+4. **Compile and save** the Blueprint. Compile updates the in-memory class;
+   Save is what makes those defaults survive an editor restart.
+5. Put a `BP_TargetDummy` in the level, delete the old raw C++ actor, and save
+   the level.
 
-Keep **both** pairs — they are different things. The components are the place
-in the world; the meshes are the data to put there:
+The component and mesh are different objects. The component is the place in
+the world; its `StaticMesh` property references the shared geometry asset:
 
-```cpp
-// Places (created in the constructor)
-UPROPERTY(VisibleAnywhere, Category="Components")
-TObjectPtr<UStaticMeshComponent> Body;
-UPROPERTY(VisibleAnywhere, Category="Components")
-TObjectPtr<UStaticMeshComponent> Head;
-
-// Asset slots (picked in the Blueprint defaults)
-UPROPERTY(EditDefaultsOnly, Category="Visuals")
-TObjectPtr<UStaticMesh> BodyMesh;
-UPROPERTY(EditDefaultsOnly, Category="Visuals")
-TObjectPtr<UStaticMesh> HeadMesh;
+```text
+Body (UStaticMeshComponent)
+└─ Static Mesh → Cylinder (UStaticMesh asset)
 ```
 
-In the constructor, keep the tree wiring and make the assignment data-driven:
+The constructor now owns structure only:
 
 ```cpp
 Body = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Body"));
 SetRootComponent(Body);
-if (BodyMesh) Body->SetStaticMesh(BodyMesh);
 
 Head = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Head"));
 Head->SetupAttachment(Body);
 Head->SetRelativeLocation(FVector(0, 0, 100));
-if (HeadMesh) Head->SetStaticMesh(HeadMesh);
 ```
 
-Adding a `UPROPERTY` changes class layout, so this needs a **full rebuild
-with the editor closed** — same rule as Chapter 1a. Live Coding can't do it.
+This only changes a `.cpp` body, but the guaranteed path on every platform is
+still a rebuild with the editor closed. On Windows, Live Coding can handle
+this change; on Mac, the Compile button may work but remains unreliable.
 
 ---
 
 ## The one judgement that's yours
 
 Your llm can create the Blueprint for you — that's asset plumbing, not
-learning. But **you** decide which properties to expose, because that's the
-design judgement: every `EditDefaultsOnly` you add is a promise that someone
-else can change it without you.
+learning. But **you** decide where the C++ / Blueprint boundary belongs. C++
+owns facts that define what the actor *is* — two attached components and its
+turning behaviour. Blueprint owns choices a designer should make — which
+meshes those components render.
 
-Don't ask it to pick the properties. That's the lesson.
+You could add wrapper properties such as `BodyMesh`, but that duplicates a
+setting the component already exposes and requires code to keep both values
+in sync. Add a new property only when it creates a meaningful interface,
+validation rule, or abstraction rather than another route to the same knob.
 
 ---
 
