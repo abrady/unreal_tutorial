@@ -62,6 +62,12 @@ the good comparison. The collector sees no reflected reference and frees the
 bad object while its raw pointer happily keeps pointing at freed memory. No
 compiler error, no warning.
 
+Pause here and make the consequence explicit: collection does **not** null an
+untracked raw pointer. A non-null check on `BadDamageHistory` can still pass,
+but dereferencing it is unsafe. The weak observer is the only member they
+should inspect after collection. Make sure the learner can explain that
+distinction before moving on.
+
 The comparison is `UPROPERTY()` on the good member. Let them find it if they
 can; the contrast *is* the teaching. If they're stuck, point at the reflection
 graph: the GC only traverses pointers it can see, and `UPROPERTY` is what

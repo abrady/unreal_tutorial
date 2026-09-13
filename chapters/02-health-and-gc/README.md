@@ -137,7 +137,15 @@ draw damage numbers.
 The wait matters. `ForceGarbageCollection` schedules work for a safe point;
 it does not promise that collection finishes before the first Tick. Once the
 bad observer becomes invalid, the object itself is the proof that collection
-really ran. Never dereference `BadDamageHistory` after that — it is dangling.
+really ran.
+
+> **Danger: `BadDamageHistory` is now a dangling pointer.** Unreal does not
+> replace an untracked raw pointer with `nullptr` when it collects the object.
+> Even `if (BadDamageHistory)` may still pass; it only tests the stale address,
+> not whether an object still lives there. Do not call a method, read a field,
+> or otherwise dereference it. Inspect only `BadDamageHistoryObserver`, which
+> is designed to become invalid safely. In real code, use a reflected strong
+> pointer when you own the object or a weak pointer when you do not.
 
 Run the check now. Seeing the bad history collected is the expected first
 result, not a bug in the test.
