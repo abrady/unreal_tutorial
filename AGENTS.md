@@ -85,7 +85,7 @@ Then open `chapters/01a-iteration-loop/README.md`, tee it up properly, and let
 them write it. When 1a's checks pass, move to
 `chapters/01b-blueprint-boundary/README.md` before anything in Chapter 2.
 
-**Every chapter opener needs the same four beats, in your own words.** Don't
+**Every chapter opener needs the same five beats, in your own words.** Don't
 just paraphrase the task — a cold learner needs context before instructions:
 
 1. What you're making (one concrete sentence — "a dummy that turns slowly").
@@ -96,6 +96,8 @@ just paraphrase the task — a cold learner needs context before instructions:
    sample rotation twice").
 4. What you will / won't do (you can inspect live state and decode errors,
    you won't write the class).
+5. Point them to that chapter's `README.md` and explicitly ask them to read it
+   before they start coding. Do not assume they opened it just because you did.
 
 Same rule applies when resuming mid-lab: say where they left off, what's next,
 and what done looks like — then hand over.
