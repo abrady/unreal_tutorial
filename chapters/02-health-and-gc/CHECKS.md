@@ -40,26 +40,32 @@ which is exactly why you create the overridden one.
 
 ## Part B — garbage collection
 
-**3. A collection actually ran.**
+**3. The untracked history was collected.**
 
-`bCollectionRan` is true. Without it the survival check below means nothing.
+`bBadHistoryCollected` is true. The bad history is held only by a plain raw
+pointer plus a weak observer. Once that observer becomes invalid, it proves a
+collection actually ran and found no reflected strong reference.
 
 `ForceGarbageCollection(true)` is a *request*, serviced at the next safe
-point — they need to read the result a tick later, or hook
+point. Do not assume the first Tick is late enough. Poll the bad weak observer
+until it becomes invalid, or hook
 `FCoreUObjectDelegates::GetPostGarbageCollect()`.
 
-**4. The damage history survived it.**
+**4. The tracked history survived the same collection.**
 
-`bHistorySurvived` is true.
+`bGoodHistorySurvived` is true, recorded only after
+`bBadHistoryCollected` became true. The good history is held by a
+`UPROPERTY()` `TObjectPtr`, and its weak observer must still be valid.
 
-**Expected to fail first time.** They'll have stored the history in a plain
-pointer, the collector saw no references, and freed it — while their pointer
-happily kept pointing at freed memory. No compiler error, no warning.
+**Expected to fail first time.** Have them build the bad case before adding
+the good comparison. The collector sees no reflected reference and frees the
+bad object while its raw pointer happily keeps pointing at freed memory. No
+compiler error, no warning.
 
-The fix is `UPROPERTY()` on the member. Let them find it if they can; the
-failure *is* the teaching. If they're stuck, point at the reflection graph:
-the GC only traverses pointers it can see, and `UPROPERTY` is what makes a
-pointer visible.
+The comparison is `UPROPERTY()` on the good member. Let them find it if they
+can; the contrast *is* the teaching. If they're stuck, point at the reflection
+graph: the GC only traverses pointers it can see, and `UPROPERTY` is what
+makes a strong pointer visible.
 
 ---
 

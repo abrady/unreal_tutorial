@@ -120,31 +120,52 @@ construction time versus at `BeginPlay`.
 The dummy needs to remember what hit it. Chapter 4 will read that history to
 draw damage numbers.
 
-### Try it first
+### Try the broken case first
 
 1. Make a `UDamageHistory : public UObject` that stores a `TArray<float>` of
    damage amounts.
-2. In `BeginPlay`, create one with `NewObject<UDamageHistory>(this)` and store
-   it in a **plain C++ pointer** — no `UPROPERTY()`.
-3. Also keep a `TWeakObjectPtr<UDamageHistory>` to it. Weak pointers never
-   keep anything alive; they just report honestly whether it's still there.
-4. Force a collection: `GEngine->ForceGarbageCollection(true);`
-5. Once the collection completes, set `bHistorySurvived` from
-   `Observer.IsValid()`.
+2. In `BeginPlay`, create `BadDamageHistory` with
+   `NewObject<UDamageHistory>(this)` and store it in a **plain C++ pointer** —
+   no `UPROPERTY()`.
+3. Point a `TWeakObjectPtr<UDamageHistory>` named
+   `BadDamageHistoryObserver` at it. Weak pointers never keep anything alive;
+   they just report honestly whether the object is still there.
+4. Request a collection once with `GEngine->ForceGarbageCollection(true);`.
+5. In `Tick`, wait until the bad observer becomes invalid, then set the
+   reflected flag `bBadHistoryCollected = true`.
 
-Run the checks. `test_damage_history_survives_gc` will **fail**. That's the
-exercise.
+The wait matters. `ForceGarbageCollection` schedules work for a safe point;
+it does not promise that collection finishes before the first Tick. Once the
+bad observer becomes invalid, the object itself is the proof that collection
+really ran. Never dereference `BadDamageHistory` after that — it is dangling.
 
-### Then fix it
+Run the check now. Seeing the bad history collected is the expected first
+result, not a bug in the test.
+
+### Add the good comparison
+
+Create a second history before the same GC request:
 
 ```cpp
-UPROPERTY()
-TObjectPtr<UDamageHistory> History;   // GC can see this — it survives
+UPROPERTY(VisibleAnywhere, Category = "Combat")
+TObjectPtr<UDamageHistory> GoodDamageHistory;  // strong, reflected reference
 
-UDamageHistory* History;              // GC cannot — collected
+TWeakObjectPtr<UDamageHistory> GoodDamageHistoryObserver;
 ```
 
-Rebuild. Watch it pass.
+Point the good observer at `GoodDamageHistory`. Only after
+`bBadHistoryCollected` becomes true, record
+`bGoodHistorySurvived = GoodDamageHistoryObserver.IsValid()`.
+
+The two histories experience the same collection:
+
+```text
+Bad:  raw pointer only       → observer becomes invalid
+Good: UPROPERTY TObjectPtr   → observer remains valid
+```
+
+This avoids guessing which frame GC ran and makes the contrast visible in a
+single PIE session. Rebuild and watch both final checks pass.
 
 ### Why
 
@@ -152,9 +173,11 @@ Unreal's GC is mark-and-sweep over the **reflection graph**. `UPROPERTY()` is
 what puts your pointer *into* that graph. Without it the collector sees no
 references, concludes the object is garbage, and frees it.
 
-Your raw pointer keeps its value. It now points at freed memory. No compiler
-error, no warning, no assert — it works perfectly until a collection happens
-to run, which in a shipped game means it works perfectly until it doesn't.
+Your bad raw pointer keeps its value. It now points at freed memory. No
+compiler error, no warning, no assert — it works perfectly until a collection
+happens to run, which in a shipped game means it works perfectly until it
+doesn't. The good reflected pointer participates in the mark graph, so its
+object survives the same collection.
 
 `TObjectPtr<T>` is the modern spelling of `T*` for tracked members. In
 packaged builds it compiles down to a raw pointer; in the editor it adds
@@ -186,13 +209,13 @@ observable.
 </details>
 
 <details>
-<summary>The history survives even without UPROPERTY</summary>
+<summary>The bad history never gets collected</summary>
 
 Something else still references it, so the collector is right to keep it.
 Check you passed `this` as the outer to `NewObject` and aren't also storing it
 somewhere tracked. Also confirm the collection actually ran —
 `ForceGarbageCollection(true)` is a *request*, serviced at the next safe
-point. Read your flags a tick later, not immediately.
+point. Keep polling the weak observer rather than assuming a particular tick.
 </details>
 
 <details>
@@ -204,10 +227,14 @@ pointer while you're in the broken state.
 </details>
 
 <details>
-<summary>How do I run something after the collection?</summary>
+<summary>Why not just check on the next Tick?</summary>
 
-`FCoreUObjectDelegates::GetPostGarbageCollect()` gives you a delegate that
-fires when a collection finishes. Remember to unbind it in `EndPlay`.
+The first Tick after `BeginPlay` is not guaranteed to occur after the safe
+point where GC is serviced. The bad object's weak observer is the completion
+signal: once it becomes invalid, that collection definitely happened. For
+production code that must react to every collection,
+`FCoreUObjectDelegates::GetPostGarbageCollect()` is the precise hook; remember
+to unbind it in `EndPlay`.
 </details>
 
 <details>
@@ -226,19 +253,19 @@ Watch it in `Tick`:
 if (bRunGC)
 {
     bRunGC = false;
-    bCollectionRan = false;
+    bBadHistoryCollected = false;
     if (GEngine) GEngine->ForceGarbageCollection(true);
 }
-else if (!bCollectionRan)
+else if (!bBadHistoryCollected && !BadDamageHistoryObserver.IsValid())
 {
-    bHistorySurvived = Observer.IsValid();
-    bCollectionRan = true;
+    bBadHistoryCollected = true;
+    bGoodHistorySurvived = GoodDamageHistoryObserver.IsValid();
 }
 ```
 
 Then during PIE (`Shift+F1` to release cursor), tick `bRunGC` in
-**Details → Combat** and watch `bHistorySurvived` update a frame later.
-Clear `bHistorySurvived`/`bCollectionRan` to re-run. Purely manual —
+**Details → Combat** and watch both result flags update after collection.
+Clear the flags to re-run. Purely manual —
 useful if the auto-GC in `Tick` feels too magical.
 </details>
 
