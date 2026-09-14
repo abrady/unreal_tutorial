@@ -16,7 +16,7 @@ The class shell is already written for you — you're filling in three `TODO`s.
 
 ---
 
-## What green looks like
+## Verifying your work
 
 Ask your llm:
 
@@ -58,14 +58,10 @@ loop. Two things specific to this chapter:
 
 ### Components: how actors are actually built
 
-This is the part worth slowing down for.
-
 An `AActor` is mostly an empty container. Behaviour and geometry come from
 **components** attached to it. Unreal's architecture is composition, not deep
 inheritance — a Character isn't a subclass of "thing that moves," it's an
 actor that *has* a movement component.
-
-Three levels matter:
 
 | Class | Adds | Example |
 |---|---|---|
