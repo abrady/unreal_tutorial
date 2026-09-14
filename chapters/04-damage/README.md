@@ -133,7 +133,7 @@ your handler is actually bound — an unbound delegate is silent.
 <summary>The projectile stops but TakeDamage never runs</summary>
 
 Either `ApplyDamage` got a null actor, or the instigator chain is broken.
-This is where Chapter 3's `Owner`/`Instigator` spawn parameters come due.
+This is where Chapter 3b's `Owner`/`Instigator` spawn parameters come due.
 </details>
 
 <details>

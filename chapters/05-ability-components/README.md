@@ -142,7 +142,7 @@ The actor's tick setting doesn't cover its components.
 <details>
 <summary>Activate() runs but no projectile appears</summary>
 
-Same three suspects as Chapter 3: spawn collision handling, zero speed, or
+Same three suspects as Chapter 3b: spawn collision handling, zero speed, or
 spawning inside the dummy's own collision and dying instantly. Spawn out at
 the muzzle, not at the actor origin.
 </details>

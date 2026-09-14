@@ -78,8 +78,10 @@ introduces the relevant concepts:
   separates C++ behavior from designer-configurable Blueprint data.
 - [Chapter 2 — Health, the CDO, and the collector](chapters/02-health-and-gc/README.md)
   explores object lifetimes, the Class Default Object, and garbage collection.
-- [Chapter 3 — You, and you can shoot](chapters/03-shooting/README.md)
-  introduces the gameplay framework, player input, and projectiles.
+- [Chapter 3a — You, and input](chapters/03a-enhanced-input/README.md)
+  introduces the gameplay framework, possession, and Enhanced Input.
+- [Chapter 3b — Something flies](chapters/03b-projectiles/README.md)
+  builds and spawns a moving projectile.
 - [Chapter 4 — Hits, damage, and floating numbers](chapters/04-damage/README.md)
   covers collision, damage, and gameplay feedback.
 - [Chapter 5 — Ability components: the dummy shoots back](chapters/05-ability-components/README.md)

@@ -84,6 +84,8 @@ the environment against
 Then open `chapters/01a-iteration-loop/README.md`, tee it up properly, and let
 them write it. When 1a's checks pass, move to
 `chapters/01b-blueprint-boundary/README.md` before anything in Chapter 2.
+After Chapter 2, teach `chapters/03a-enhanced-input/README.md` before
+`chapters/03b-projectiles/README.md`; do not combine their checks.
 
 **Every chapter opener needs the same five beats, in your own words.** Don't
 just paraphrase the task — a cold learner needs context before instructions:
@@ -184,7 +186,7 @@ third is not learning — it's typing.** That's yours.
 
 | They did | You may |
 |---|---|
-| Wired `IA_Fire` and its mapping context | Create `IA_Reload`, `IA_Dash` the same way |
+| Created and mapped `IA_Jump` | Add the supplied Move, Look, and Fire mappings |
 | Placed one dummy in the level | Spawn five more in a firing line |
 | Attached one ability component | Attach it to the rest of the dummies |
 | Wrote one ability subclass | Scaffold the next one's boilerplate |

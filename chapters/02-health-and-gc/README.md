@@ -285,7 +285,7 @@ Ask your assistant:
 
 > **check my work**
 
-Then [Chapter 3](../03-shooting/), where you get to shoot at it.
+Then [Chapter 3a](../03a-enhanced-input/), where you take control of the player.
 
 ---
 
